@@ -1,0 +1,11 @@
+{
+  "name": "voysec",
+  "version": "0.0.1",
+  "description": "Voyage project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Osycon, thinktwice13, miljan-fsd",
+  "license": "MIT"
+}
