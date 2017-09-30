@@ -1,1 +1,2 @@
-// Here goes the server stuff
+const express = require('express');
+const bodyParser = require('body-parser');
