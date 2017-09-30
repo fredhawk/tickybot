@@ -8,6 +8,9 @@
   },
   "author": "Osycon, thinktwice13, miljan-fsd",
   "license": "MIT",
+  "eslintConfig": {
+    "extends": "airbnb-base"
+  },
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.1"
