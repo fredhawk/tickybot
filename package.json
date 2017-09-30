@@ -4,6 +4,7 @@
   "description": "Voyage project",
   "main": "index.js",
   "scripts": {
+    "start": "node -r dotenv/config ./server/server.js",
     "dev": "nodemon -r dotenv/config ./server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
