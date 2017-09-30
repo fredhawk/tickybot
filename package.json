@@ -4,7 +4,7 @@
   "description": "Voyage project",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./server/server.js",
+    "dev": "nodemon -r dotenv/config ./server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Osycon, thinktwice13, miljan-fsd, Zsolti",
