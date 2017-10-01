@@ -17,8 +17,9 @@ const server = app.listen(PORT, () => {
 app.post('/', (req, res) => {
   // Content from user comes in as req
   const { user_id, user_name, text } = req.body;
-  // console.log(req.body);
-  userHandler.writeUserData(user_id, user_name, text);
+  console.log(req.body);
+  // userHandler.writeUserData(user_id, user_name, text);
+  userHandler.addNewTicket(user_id, text);
   const data = {
     // Send message so it is only visible to the user.
     response_type: 'ephemeral',
