@@ -1,5 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const database = require('../config/firebase');
+
 const PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -18,7 +20,7 @@ app.post('/', (req, res) => {
   const data = {
     // Send message so it is only visible to the user.
     response_type: 'ephemeral',
-    text: 'Working'
+    text: 'Working',
   };
   // Send message back to the user.
   res.json(data);
