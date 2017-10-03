@@ -1,10 +1,11 @@
 const msg = require('../utils/messages');
 const verifyToken = require('../middleware/verifyToken');
+const handleInput = require('../controllers/handleInput');
 
 module.exports = (app) => {
   app.post('/', verifyToken, (req, res) => {
     // Content from user comes in as req
-    const message = req.body.text;
+    const input = req.body.text;
 
     // TODO determine if user is owner/admin (https://api.slack.com/methods/users.info)
     const isRestricted = true; // TEMP regular user, false for admins/owners
@@ -14,14 +15,12 @@ module.exports = (app) => {
       .fill()
       .map((el, i) => `Ticket${i}`);
 
-    // if message empty, return hello messages. Otherwise handle message
-    if (!message) {
+    // if input empty, return hello response. Otherwise handle input
+    if (!input) {
       res.json(msg.hello({ tickets, isRestricted }));
-    } else if (isRestricted) {
-      // if message found from regular user
     } else {
-      // if message found from owner/admin
-      console.log(message);
+      // if non-empty input found
+      handleInput({ input, isRestricted });
     }
   });
 };
