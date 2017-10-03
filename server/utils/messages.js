@@ -1,5 +1,3 @@
-const actions = require('./actions');
-
 module.exports = {
   hello({ tickets, isRestricted }) {
     // map and show list of pending/solved tickets, together with available actions
