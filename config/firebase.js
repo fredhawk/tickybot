@@ -8,4 +8,5 @@ const config = {
   storageBucket: process.env.firebaseStorageBucket,
   messagingSenderId: process.env.firebaseMessagingSenderId,
 };
+
 firebase.initializeApp(config);
