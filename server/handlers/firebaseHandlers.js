@@ -1,4 +1,5 @@
 const firebase = require('firebase');
+require('../../config/firebase');
 
 /**
  * Add User
