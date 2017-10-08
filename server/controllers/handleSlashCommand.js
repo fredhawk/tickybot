@@ -1,5 +1,5 @@
 const responses = require('../utils/responses');
-const { actionTypes, userCommands, adminCommands } = require('../utils/constants');
+const { userCommands, adminCommands } = require('../utils/constants');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 
 module.exports = (req, res, next) => {
