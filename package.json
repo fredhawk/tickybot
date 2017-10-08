@@ -4,7 +4,8 @@
   "description": "Voyage project",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
+    "start":
+      "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
     "server": "nodemon -r dotenv/config ./server/server.js",
     "dev": "concurrently \"npm run test\" \"npm run server\"",
     "test": "jest --watchAll"
@@ -19,7 +20,8 @@
     "concurrently": "^3.5.0",
     "dotenv": "^4.0.0",
     "express": "^4.16.1",
-    "firebase": "^4.6.0"
+    "firebase": "^4.6.0",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "eslint": "^4.8.0",

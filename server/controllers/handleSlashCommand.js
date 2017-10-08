@@ -1,10 +1,13 @@
 const responses = require('../utils/responses');
 const { userCommands, adminCommands } = require('../utils/constants');
 const firebaseHandler = require('../handlers/firebaseHandlers');
+const { sendMessage } = require('../handlers/responseHandlers');
 
 module.exports = async (req, res, next) => {
-  const { user_id, team_id, user_name, text } = req.body;
-  // const { text } = req.body;
+  res.status(200).end();
+  const {
+    user_id, team_id, user_name, text, response_url,
+  } = req.body;
 
   // TODO determine user status (https://api.slack.com/methods/users.info)
   const isAdmin = false;
@@ -48,11 +51,13 @@ module.exports = async (req, res, next) => {
       response = responses.OPEN({ message });
     }
   }
-  console.log(req.body);
+
   console.log({
     isAdmin,
     message,
     response,
+    request: req.body,
   });
-  res.json(response);
+
+  sendMessage(response_url, response);
 };
