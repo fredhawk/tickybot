@@ -16,9 +16,12 @@ module.exports = (req, res, next) => {
 
   /*
   Content from users comes in as req.
-  If no input other than /ticket given, assign HELLO action which returns default response with usage instructions and ticket status ???
-  Otherwise tokenize input, parse input into command and a message and determine the appropriate action to take.
-  If command not recognized treat entire input as a ticket message for users, but return ERROR to admins.
+  If no input other than /ticket given, assign HELLO action
+  which returns default response with usage instructions and ticket status ???
+  Otherwise tokenize input, parse input into command and a message
+  and determine the appropriate action to take.
+  If command not recognized treat entire input as a ticket message for users,
+  but return ERROR to admins.
   */
 
   let command = '';
