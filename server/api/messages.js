@@ -1,11 +1,11 @@
 const handleSlashCommand = require('../controllers/handleSlashCommand');
+const handleInteractiveMsg = require('../controllers/handleInteractiveMsg');
 const verifyToken = require('../controllers/verifyToken');
 
 module.exports = (app) => {
-  app.post('/', verifyToken, handleSlashCommand);
+  // handle input from slash commands
+  app.post('/', verifyToken.slash, handleSlashCommand);
 
-  // TODO
-  // handle inputs from actions buttons and option picker interactive messages
-  app.post('/actions', verifyToken);
-  app.post('/options', verifyToken);
+  // handle input from interactive messages
+  app.post('/actions', verifyToken.interactive, handleInteractiveMsg);
 };
