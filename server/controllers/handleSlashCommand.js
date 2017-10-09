@@ -8,7 +8,6 @@ module.exports = async (req, res, next) => {
   const {
     user_id, team_id, user_name, text, response_url,
   } = req.body;
-
   // TODO determine user status (https://api.slack.com/methods/users.info)
   const isAdmin = false;
 
@@ -45,10 +44,10 @@ module.exports = async (req, res, next) => {
     } else if (userCommands.includes(command)) {
       // TODO CLOSE, UNSOLVE commands require ticketId
       message = tokenized.splice(1).join(' ');
-      response = responses[command]({ isAdmin, message });
+      response = await responses[command]({ user_id, message });
     } else {
       message = tokenized.join(' ');
-      response = responses.OPEN({ message });
+      response = await responses.OPEN({ user_id, message });
     }
   }
 

@@ -6,15 +6,16 @@ exports.usage = isAdmin => ({
   mrkdwn_in: ['text'],
 });
 
-exports.status = (isAdmin) => {
-  const tickets = Array(5)
-    .fill()
-    .map((el, i) => `Ticket #${i + 1}`);
+exports.show = (isAdmin = false, tickets) => {
+  // FIXME format visible tickets
+  const formattedTickets = Object.values(tickets)
+    .map(ticket => `${ticket.text} from @${ticket.author}`)
+    .join('\n');
 
   if (isAdmin) {
     return {
       title: 'All open tickets',
-      text: tickets.join('\n'),
+      text: formattedTickets,
     };
   }
   return {
@@ -23,11 +24,11 @@ exports.status = (isAdmin) => {
     fields: [
       {
         title: 'Solved',
-        value: tickets.join('\n'),
+        value: formattedTickets,
       },
       {
         title: 'Pending',
-        value: tickets.join('\n'),
+        value: formattedTickets,
       },
     ],
   };
