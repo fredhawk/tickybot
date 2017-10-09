@@ -12,6 +12,9 @@ exports.show = (isAdmin = false, tickets) => {
     .map(ticket => `${ticket.text} from @${ticket.author}`)
     .join('\n');
 
+  // Construct ticket menu attachments
+  const options = Object.keys(tickets).map(id => ({ text: tickets[id].text, value: id }));
+  
   if (isAdmin) {
     return {
       title: 'All open tickets',
@@ -21,6 +24,7 @@ exports.show = (isAdmin = false, tickets) => {
   return {
     title: 'Your Tickets',
     title_link: 'https://www.ticketbot.commm',
+    callback_id: 'ticket-select',
     fields: [
       {
         title: 'Solved',
@@ -29,6 +33,14 @@ exports.show = (isAdmin = false, tickets) => {
       {
         title: 'Pending',
         value: formattedTickets,
+      },
+    ],
+    actions: [
+      {
+        name: 'ticket-list',
+        text: 'Pick a ticket',
+        type: 'select',
+        options,
       },
     ],
   };

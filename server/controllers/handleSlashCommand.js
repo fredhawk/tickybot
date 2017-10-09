@@ -1,9 +1,8 @@
 const responses = require('../utils/responses');
 const { userCommands, adminCommands } = require('../utils/constants');
-const firebaseHandler = require('../handlers/firebaseHandlers');
 const { sendMessage } = require('../handlers/responseHandlers');
 
-module.exports = async (req, res, next) => {
+module.exports = async (req, res) => {
   res.status(200).end();
   const {
     user_id, team_id, user_name, text, response_url,
