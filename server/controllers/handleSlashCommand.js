@@ -1,5 +1,5 @@
 const responses = require('../utils/responses');
-const { userCommands, adminCommands } = require('../utils/constants');
+const { commands } = require('../utils/constants');
 const { sendMessage, getUserInfo } = require('../handlers/responseHandlers');
 
 module.exports = async (req, res) => {
@@ -29,26 +29,36 @@ module.exports = async (req, res) => {
 
   let command = '';
   let message = '';
+  let ticketNumber = null;
   let response = {};
 
   if (!text) {
     response = await responses.HELLO({ isAdmin });
   } else {
-    const tokenized = req.body.text.match(/\S+/g);
+    let tokenized = text.match(/\S+/g);
     command = tokenized[0].toUpperCase();
 
-    if (isAdmin) {
-      // TODO SOLVE command requires ticketId
-      response = adminCommands.includes(command)
-        ? responses[command]({ isAdmin })
-        : responses.ERROR({ isAdmin });
-    } else if (userCommands.includes(command)) {
-      // TODO CLOSE, UNSOLVE commands require ticketId
+    // Find ticket reference - format #[number]
+    const ticketReference = text.match(/#\d+/g);
+    if (ticketReference) {
+      ticketNumber = ticketReference[0].substring(1);
+      tokenized = tokenized.filter(token => token !== ticketReference[0]);
+    }
+
+    if (commands.includes(command)) {
       message = tokenized.splice(1).join(' ');
-      response = await responses[command]({ user_id, message });
-    } else {
+      response = await responses[command]({
+        isAdmin,
+        user_id,
+        command,
+        message,
+        ticketNumber,
+      });
+    } else if (!isAdmin) {
       message = tokenized.join(' ');
       response = await responses.OPEN({ user_id, message });
+    } else {
+      response = await responses.ERROR({ isAdmin });
     }
   }
 
@@ -56,6 +66,9 @@ module.exports = async (req, res) => {
     isAdmin,
     message,
     response,
+    user_id,
+    command,
+    ticketNumber,
     request: req.body,
   });
 

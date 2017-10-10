@@ -40,18 +40,18 @@ exports.ERROR = ({ isAdmin }) =>
 
 // FIXME At the moment directly saves the ticks. Will rework into asking confirmation first
 exports.OPEN = async ({ user_id, message }) => {
-  await firebaseHandler.addNewTicket(user_id, message);
+  // await firebaseHandler.addNewTicket(user_id, message);
   return {
     // construct the ticket and ask for confirmation
     text: `Ticket ${message} saved. I'll ask for a confirmation in a later releaase. Sorry ;)`,
   };
 };
 
-exports.CLOSE = ({ ticketId }) =>
+exports.CLOSE = ({ ticketNumber }) =>
   // ask for confirmation
   ({
     text: 'Are you sure?',
   });
 
-exports.SOLVE = () => {};
-exports.UNSOLVE = () => {};
+exports.SOLVE = ({ ticketNumber }) => {};
+exports.UNSOLVE = ({ ticketNumber }) => {};
