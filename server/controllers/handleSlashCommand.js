@@ -1,6 +1,6 @@
 const responses = require('../utils/responses');
 const { userCommands, adminCommands } = require('../utils/constants');
-const { sendMessage } = require('../handlers/responseHandlers');
+const { sendMessage, getUserInfo } = require('../handlers/responseHandlers');
 
 module.exports = async (req, res) => {
   res.status(200).end();
@@ -8,6 +8,8 @@ module.exports = async (req, res) => {
     user_id, team_id, user_name, text, response_url,
   } = req.body;
   // TODO determine user status (https://api.slack.com/methods/users.info)
+  const userInfo = await getUserInfo(user_id);
+  // const isAdmin = userInfo.is_admin
   const isAdmin = false;
 
   // Example of how to use firebase handlers
@@ -30,7 +32,7 @@ module.exports = async (req, res) => {
   let response = {};
 
   if (!text) {
-    response = responses.HELLO({ isAdmin });
+    response = await responses.HELLO({ isAdmin });
   } else {
     const tokenized = req.body.text.match(/\S+/g);
     command = tokenized[0].toUpperCase();

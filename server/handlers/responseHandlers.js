@@ -1,4 +1,4 @@
-const request = require('request');
+const request = require('request-promise-native');
 
 exports.sendMessage = (responseURL, message) => {
   const options = {
@@ -8,7 +8,17 @@ exports.sendMessage = (responseURL, message) => {
     json: message,
   };
 
-  request(options, (error, response, body) => {
-    if (error) console.log(error);
-  });
+  request(options).catch(err => console.log(err));
+};
+
+// Requires USERS.PROFILE scope in Slack app permissions
+exports.getUserInfo = (UserId) => {
+  const data = {
+    token: process.env.SLACK_BOT_OAUTH_TOKEN,
+    user: UserId,
+  };
+  return request
+    .post('https://slack.com/api/users.info', { form: data })
+    .then(res => JSON.parse(res).user)
+    .catch(err => console.log(err));
 };
