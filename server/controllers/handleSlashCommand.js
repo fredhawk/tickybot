@@ -48,18 +48,18 @@ module.exports = async (req, res, next) => {
       response = responses.OPEN({ message });
     }
   }
-  // const ticketCount = await firebaseHandler.ticketCount();
-  console.log(req.body);
-  console.log({
-    isAdmin,
-    message,
-    response,
-    // ticketCount,
-  });
-  firebaseHandler.addNewTicket(user_id, team_id, user_name, text, isAdmin);
-  // const open = await firebaseHandler.getAllOpenTicketsForUser(user_id);
-  // console.log(open);
-  // firebaseHandler.addUser(user_id, user_name);
-
+  // console.log(req.body);
+  // console.log({
+  //   isAdmin,
+  //   message,
+  //   response,
+  // });
+  await firebaseHandler.addNewTicket(
+    user_id,
+    team_id,
+    user_name,
+    text,
+    isAdmin
+  );
   res.json(response);
 };

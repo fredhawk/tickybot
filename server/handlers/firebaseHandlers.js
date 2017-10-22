@@ -3,18 +3,26 @@ require('../../config/firebase');
 const querybase = require('querybase');
 
 /**
- * Add User
- *
- * @param {any} userId
- * @param {any} username
+ * Increase ticket count
+ * 
  */
-exports.addUser = (userId, username) => {
-  firebase
+const ticketIncrement = async () => {
+  await firebase
     .database()
-    .ref(`users/${userId}`)
-    .set({
-      username,
-    });
+    .ref('tickets/')
+    .child('count')
+    .transaction(curr => (curr || 0) + 1);
+};
+
+/**
+ * Get amount of tickets
+ * 
+ * @returns {number}
+ */
+const getTicketCount = async () => {
+  const count = firebase.database().ref('tickets/count');
+  const num = await count.once('value');
+  return num.val();
 };
 
 /**
@@ -32,16 +40,18 @@ exports.addNewTicket = async (
   status = 'open'
 ) => {
   const tickets = firebase.database().ref('tickets/');
-  const newTicket = tickets.push();
-  newTicket.set({
+  await ticketIncrement();
+  const ticketNumber = await getTicketCount();
+  const newTicket = await tickets.push();
+  await newTicket.set({
     author: userId,
     team: teamId,
     username,
     text,
     isAdmin,
+    ticketNumber,
     status,
-    author_status: `${userID}_${status}`,
-    // ticketNumber,
+    author_status: `${userId}_${status}`,
   });
 };
 
@@ -81,19 +91,6 @@ exports.getAllOpenTicketsByUser = async userId => {
     .equalTo(`${userId}_open`)
     .once('value');
   return values.val();
-};
-
-exports.ticketCount = async () => {
-  const tickets = firebase.database().ref('tickets/');
-  tickets.on('child_added', snap => {
-    snap.count = snap.count + 1;
-    console.log(snap);
-  });
-  // const values = await tickets.once('value');
-  // const count = await va.numChildren();
-  // values.
-  console.log(count);
-  return count;
 };
 
 /**
