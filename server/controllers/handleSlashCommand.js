@@ -2,14 +2,14 @@ const responses = require('../utils/responses');
 const { userCommands, adminCommands } = require('../utils/constants');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 
-module.exports = (req, res, next) => {
-  const { text } = req.body;
+module.exports = async (req, res, next) => {
+  const { user_id, team_id, user_name, text } = req.body;
+  // const { text } = req.body;
 
   // TODO determine user status (https://api.slack.com/methods/users.info)
   const isAdmin = false;
 
   // Example of how to use firebase handlers
-  // const { user_id, user_name, text } = req.body;
   // const userResult = await firebaseHandler.addUser(user_id, user_name);
   // const ticketResult = await firebaseHandler.addNewTicket(user_id, text);
   // const tickets = await firebaseHandler.getAllTickets();
@@ -48,12 +48,18 @@ module.exports = (req, res, next) => {
       response = responses.OPEN({ message });
     }
   }
-
+  // const ticketCount = await firebaseHandler.ticketCount();
+  console.log(req.body);
   console.log({
     isAdmin,
     message,
     response,
+    // ticketCount,
   });
+  firebaseHandler.addNewTicket(user_id, team_id, user_name, text, isAdmin);
+  // const open = await firebaseHandler.getAllOpenTicketsForUser(user_id);
+  // console.log(open);
+  // firebaseHandler.addUser(user_id, user_name);
 
   res.json(response);
 };
