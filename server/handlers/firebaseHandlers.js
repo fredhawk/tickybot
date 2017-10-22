@@ -53,6 +53,7 @@ exports.addNewTicket = async (
     status,
     author_status: `${userId}_${status}`,
   });
+  return ticketNumber;
 };
 
 /**

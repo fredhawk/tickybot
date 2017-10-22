@@ -54,12 +54,13 @@ module.exports = async (req, res, next) => {
   //   message,
   //   response,
   // });
-  await firebaseHandler.addNewTicket(
+  const ticketnumber = await firebaseHandler.addNewTicket(
     user_id,
     team_id,
     user_name,
     text,
     isAdmin
   );
+  console.log(ticketnumber);
   res.json(response);
 };
