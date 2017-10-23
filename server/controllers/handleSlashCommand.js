@@ -48,19 +48,11 @@ module.exports = async (req, res, next) => {
       response = responses.OPEN({ message });
     }
   }
-  // console.log(req.body);
-  // console.log({
-  //   isAdmin,
-  //   message,
-  //   response,
-  // });
-  const ticketnumber = await firebaseHandler.addNewTicket(
-    user_id,
-    team_id,
-    user_name,
-    text,
-    isAdmin
-  );
-  console.log(ticketnumber);
+  console.log(req.body);
+  console.log({
+    isAdmin,
+    message,
+    response,
+  });
   res.json(response);
 };
