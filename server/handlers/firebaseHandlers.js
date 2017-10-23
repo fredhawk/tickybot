@@ -109,7 +109,7 @@ exports.getAllOpenTicketsByUser = async userId => {
 exports.getAllOpenTicketsByTeam = async teamId => {
   const tickets = firebase.database().ref('tickets/');
   const values = await tickets
-    .orderByChild('author_status')
+    .orderByChild('team_status')
     .equalTo(`${teamId}_open`)
     .once('value');
   return values.val();
@@ -121,13 +121,13 @@ exports.getAllOpenTicketsByTeam = async teamId => {
  * @param {any} ticketnumber
  * @returns {object}
  */
-exports.getTicketByNumber = async ticketnum => {
-  const tickets = firebase.database().ref('ticket/');
+exports.getTicketByNumber = async num => {
+  const tickets = firebase.database().ref('tickets/');
   const values = await tickets
     .orderByChild('ticketNumber')
-    .equalTo(6)
+    .equalTo(num)
     .once('value');
-  return values;
+  return values.val();
 };
 
 exports.updateTicket = async (userId, ticketId, ticketObj) => {
