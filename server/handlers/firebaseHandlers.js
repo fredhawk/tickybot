@@ -130,6 +130,60 @@ exports.getTicketByNumber = async num => {
   return values.val();
 };
 
-exports.updateTicket = async (userId, ticketId, ticketObj) => {
-  const ticket = firebase.database().ref(`ticket/${ticketId}/`);
+/**
+ * Get ticketId by ticket number
+ * 
+ * @param {any} num 
+ * @returns {string}
+ */
+exports.getTicketIdByNumber = async num => {
+  const tickets = firebase.database().ref('tickets/');
+  const values = await tickets
+    .orderByChild('ticketNumber')
+    .equalTo(num)
+    .once('value');
+  const val = await values.val();
+  const key = await Object.keys(val)[0];
+  return key;
+};
+
+/**
+ * Get authorId based on ticketId
+ * 
+ * @param {string} id 
+ * @returns {string} authorId
+ */
+exports.getAuthorByTicketId = async id => {
+  const ticketRef = firebase.database().ref(`tickets/${id}`);
+  const values = await ticketRef.once('value');
+  return values.val().author;
+};
+
+/**
+ * Get teamId based on ticketId
+ * 
+ * @param {string} id 
+ * @returns {string} teamId
+ */
+exports.getTeamByTicketId = async id => {
+  const ticketRef = firebase.database().ref(`tickets/${id}`);
+  const values = await ticketRef.once('value');
+  return values.val().team;
+};
+
+/**
+ * Update ticket status
+ * 
+ * @param {number} ticketnum 
+ * @param {string} status 
+ */
+exports.updateTicket = async (ticketId, authorId, teamId, newStatus) => {
+  const ticketRef = firebase.database().ref(`tickets/${ticketId}`);
+  ticketRef.update({
+    status: newStatus,
+    author_status: `${authorId}_${newStatus}`,
+    team_status: `${teamId}_${newStatus}`,
+  });
+  const values = await ticketRef.once('value');
+  return values.val();
 };
