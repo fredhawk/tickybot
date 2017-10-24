@@ -1,6 +1,5 @@
 const firebase = require('firebase');
 require('../../config/firebase');
-const querybase = require('querybase');
 
 /**
  * Increase ticket count
