@@ -4,18 +4,17 @@ const { sendMessage, getUserInfo } = require('../handlers/responseHandlers');
 
 module.exports = async (req, res) => {
   res.status(200).end();
+
   const {
     user_id, team_id, user_name, text, response_url,
   } = req.body;
-  // TODO determine user status (https://api.slack.com/methods/users.info)
-  const userInfo = await getUserInfo(user_id);
-  // const isAdmin = userInfo.is_admin
-  const isAdmin = false;
 
-  // Example of how to use firebase handlers
-  // const userResult = await firebaseHandler.addUser(user_id, user_name);
-  // const ticketResult = await firebaseHandler.addNewTicket(user_id, text);
-  // const tickets = await firebaseHandler.getAllTickets();
+  /*
+  Determine user status (https://api.slack.com/methods/users.info)
+  const userInfo = await getUserInfo(user_id);
+  const isAdmin = userInfo.is_admin
+  */
+  const isAdmin = false;
 
   /*
   Content from users comes in as req.
@@ -38,37 +37,39 @@ module.exports = async (req, res) => {
     let tokenized = text.match(/\S+/g);
     command = tokenized[0].toUpperCase();
 
-    // Find ticket reference - format #[number]
+    // Find ticket reference in #[number] format
     const ticketReference = text.match(/#\d+/g);
     if (ticketReference) {
       ticketNumber = ticketReference[0].substring(1);
       tokenized = tokenized.filter(token => token !== ticketReference[0]);
     }
 
+    const responseParams = {
+      user_id,
+      user_name,
+      team_id,
+      message,
+      isAdmin,
+      ticketNumber,
+    };
+
     if (commands.includes(command)) {
       message = tokenized.splice(1).join(' ');
-      response = await responses[command]({
-        isAdmin,
-        user_id,
-        command,
-        message,
-        ticketNumber,
-      });
+      response = await responses[command](responseParams);
     } else if (!isAdmin) {
       message = tokenized.join(' ');
-      response = await responses.OPEN({ user_id, message });
+      response = await responses.OPEN(responseParams);
     } else {
       response = await responses.ERROR({ isAdmin });
     }
   }
 
   console.log({
-    isAdmin,
     message,
-    response,
-    user_id,
+    isAdmin,
     command,
     ticketNumber,
+    response,
     request: req.body,
   });
 
