@@ -17,10 +17,10 @@ exports.HELP = ({ isAdmin }) => ({
 });
 
 // Show open tickets to admins and open/solved to users
-exports.SHOW = async ({ isAdmin, teamId }) => {
+exports.SHOW = async ({ isAdmin, teamId, userId }) => {
   const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
   return {
-    attachments: [attach.show(isAdmin, tickets)],
+    attachments: [attach.show(isAdmin, tickets, userId)],
   };
 };
 
