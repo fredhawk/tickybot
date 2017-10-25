@@ -9,12 +9,12 @@ exports.usage = isAdmin => ({
 exports.show = (isAdmin = false, tickets) => {
   // FIXME format visible tickets
   const formattedTickets = Object.values(tickets)
-    .map(ticket => `${ticket.text} from @${ticket.author}`)
+    .map(ticket => `#${ticket.ticketNumber} - ${ticket.text} from @${ticket.username}`)
     .join('\n');
 
   // Construct ticket menu attachments
   const options = Object.keys(tickets).map(id => ({ text: tickets[id].text, value: id }));
-  
+
   if (isAdmin) {
     return {
       title: 'All open tickets',
@@ -45,6 +45,27 @@ exports.show = (isAdmin = false, tickets) => {
     ],
   };
 };
+
+exports.confirmOpen = (ticketNumber, message) => ({
+  text: `Ticket #${ticketNumber} - ${message} submitted.`,
+  callback_id: 'open_confirmation',
+  atatchemnt_type: 'default',
+  actions: [
+    {
+      name: 'delete',
+      text: 'Delete',
+      style: 'danger',
+      type: 'button',
+      value: 'delete',
+    },
+    {
+      name: 'view-all',
+      text: 'View All',
+      type: 'button',
+      value: 'view-all',
+    },
+  ],
+});
 
 // TODO
 exports.actions = () => {};

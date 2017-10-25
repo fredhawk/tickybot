@@ -6,7 +6,11 @@ module.exports = async (req, res) => {
   res.status(200).end();
 
   const {
-    user_id, team_id, user_name, text, response_url,
+    text,
+    user_id: userId,
+    team_id: teamId,
+    user_name: username,
+    response_url: responseURL,
   } = req.body;
 
   /*
@@ -45,33 +49,32 @@ module.exports = async (req, res) => {
     }
 
     const responseParams = {
-      user_id,
-      user_name,
-      team_id,
-      message,
+      userId,
+      username,
+      teamId,
       isAdmin,
       ticketNumber,
     };
 
     if (commands.includes(command)) {
       message = tokenized.splice(1).join(' ');
-      response = await responses[command](responseParams);
+      response = await responses[command]({ ...responseParams, message });
     } else if (!isAdmin) {
       message = tokenized.join(' ');
-      response = await responses.OPEN(responseParams);
+      response = await responses.OPEN({ ...responseParams, message });
     } else {
       response = await responses.ERROR({ isAdmin });
     }
   }
 
-  console.log({
-    message,
-    isAdmin,
-    command,
-    ticketNumber,
-    response,
-    request: req.body,
-  });
+  // console.log({
+  //   message,
+  //   isAdmin,
+  //   command,
+  //   ticketNumber,
+  //   response,
+  //   request: req.body,
+  // });
 
-  sendMessage(response_url, response);
+  sendMessage(responseURL, response);
 };

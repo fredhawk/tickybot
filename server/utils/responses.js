@@ -2,8 +2,8 @@ const attach = require('./attachments');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 
 // Show open and/or pending tickets and usage instructions
-exports.HELLO = async ({ isAdmin }) => {
-  const tickets = await firebaseHandler.getAllOpenTickets();
+exports.HELLO = async ({ isAdmin, teamId }) => {
+  const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
   return {
     text: 'Hello :wave:',
     attachments: [attach.show(isAdmin, tickets), attach.usage(isAdmin)],
@@ -17,8 +17,8 @@ exports.HELP = ({ isAdmin }) => ({
 });
 
 // Show open tickets to admins and open/solved to users
-exports.SHOW = async ({ isAdmin, user_id, team_id }) => {
-  const tickets = await firebaseHandler.getAllOpenTicketsByTeam(team_id)
+exports.SHOW = async ({ isAdmin, teamId }) => {
+  const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
   return {
     attachments: [attach.show(isAdmin, tickets)],
   };
@@ -32,11 +32,18 @@ exports.ERROR = ({ isAdmin }) => ({
 
 // FIXME At the moment directly saves the tickets. Will rework into asking confirmation first
 exports.OPEN = async ({
-  user_id, team_id, message, isAdmin, user_name,
+  userId, teamId, username, message, isAdmin,
 }) => {
-  await firebaseHandler.addNewTicket(user_id, team_id, user_name, message, isAdmin);
+  console.log({ message });
+  const ticketNumber = await firebaseHandler.addNewTicket(
+    userId,
+    teamId,
+    username,
+    message,
+    isAdmin,
+  );
   return {
-    text: `Ticket ${message} saved. I'll ask for a confirmation in a later releaase. Sorry ;)`,
+    attachments: [attach.confirmOpen(ticketNumber, message)],
   };
 };
 
@@ -46,5 +53,9 @@ exports.CLOSE = ({ ticketNumber }) => ({
 });
 
 // Change ticket status
-exports.SOLVE = ({ ticketNumber }) => {};
-exports.UNSOLVE = ({ ticketNumber }) => {};
+exports.SOLVE = ({ isAdmin, ticketNumber }) => ({
+  text: `Solving ticket #${ticketNumber}`,
+});
+exports.UNSOLVE = ({ ticketNumber }) => ({
+  text: `Nope. # ${ticketNumber}isn't solved`,
+});
