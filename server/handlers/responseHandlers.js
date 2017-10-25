@@ -8,7 +8,7 @@ exports.sendMessage = (responseURL, message) => {
     json: message,
   };
 
-  request(options).catch(err => console.log(err));
+  request(options).catch(() => console.log('Error sending message'));
 };
 
 // Requires USERS.PROFILE scope in Slack app permissions

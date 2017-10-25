@@ -34,7 +34,6 @@ exports.ERROR = ({ isAdmin }) => ({
 exports.OPEN = async ({
   userId, teamId, username, message, isAdmin,
 }) => {
-  console.log({ message });
   const ticketNumber = await firebaseHandler.addNewTicket(
     userId,
     teamId,
@@ -59,3 +58,10 @@ exports.SOLVE = ({ isAdmin, ticketNumber }) => ({
 exports.UNSOLVE = ({ ticketNumber }) => ({
   text: `Nope. # ${ticketNumber}isn't solved`,
 });
+
+// Delete ticket in response to DELETE action button from open ticket confiramtiom message
+exports.DELETE = ticketNumber =>
+  // await firebaseHandler.removeOneTicket(ticketNumber)
+  ({
+    text: `Ticket #${ticketNumber} deleted`,
+  });

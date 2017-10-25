@@ -56,13 +56,13 @@ exports.confirmOpen = (ticketNumber, message) => ({
       text: 'Delete',
       style: 'danger',
       type: 'button',
-      value: 'delete',
+      value: ticketNumber,
     },
     {
-      name: 'view-all',
+      name: 'show',
       text: 'View All',
       type: 'button',
-      value: 'view-all',
+      value: 'show',
     },
   ],
 });

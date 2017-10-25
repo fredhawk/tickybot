@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   } = req.body;
 
   /*
-  Determine user status (https://api.slack.com/methods/users.info)
+  Determine admin status (https://api.slack.com/methods/users.info)
   const userInfo = await getUserInfo(user_id);
   const isAdmin = userInfo.is_admin
   */
