@@ -7,7 +7,7 @@ exports.usage = isAdmin => ({
 });
 
 exports.show = (isAdmin = false, tickets, userId) => {
-  // Fitler tickets to show
+  // Filter tickets to show
   const openTickets = [];
   const openUserTickets = [];
   const solvedUserTickets = [];
@@ -65,7 +65,7 @@ exports.show = (isAdmin = false, tickets, userId) => {
   };
 };
 
-exports.confirmOpen = (ticketNumber, message) => ({
+exports.confirmOpen = (ticketNumber, ticketId, message) => ({
   text: `Ticket #${ticketNumber} - ${message} submitted.`,
   callback_id: 'open_confirmation',
   atatchemnt_type: 'default',
@@ -75,7 +75,7 @@ exports.confirmOpen = (ticketNumber, message) => ({
       text: 'Delete',
       style: 'danger',
       type: 'button',
-      value: ticketNumber,
+      value: ticketId,
     },
     {
       name: 'show',

@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     callback_id: callbackId,
     team: { id: teamId },
     response_url: responseURL,
-    actions: [{ name: actionType, value: ticketNumber }],
+    actions: [{ name: actionType, value: ticketId }],
   } = res.locals.payload;
 
   const responseParams = {
@@ -23,12 +23,10 @@ module.exports = async (req, res) => {
     callbackId,
     teamId,
     actionType,
-    ticketNumber,
+    ticketId,
   };
 
   let response = {};
-
-  console.log({ responseParams });
 
   // let response = { text: 'Test response', replace_original: false };
 
@@ -41,7 +39,7 @@ module.exports = async (req, res) => {
   if (actionType === 'delete') {
     response = {
       replace_original: true,
-      ...(await responses.DELETE(ticketNumber)),
+      ...(await responses.DELETE(ticketId)),
     };
   }
 
