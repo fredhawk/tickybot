@@ -34,12 +34,6 @@ exports.show = (isAdmin = false, tickets, userId) => {
         `#${ticket.ticketNumber} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
       .join('\n');
 
-  // Construct ticket menu attachments
-  const options = Object.keys(tickets).map(id => ({
-    text: `#${tickets[id].ticketNumber} - ${tickets[id].text}`,
-    value: id,
-  }));
-
   if (isAdmin) {
     return {
       title: 'All open tickets',
@@ -104,6 +98,23 @@ exports.confirmOpen = message => ({
   ],
 });
 
-// TODO
-exports.actions = () => {};
-exports.options = () => {};
+exports.confirmClose = (ticketNumber, ticketId) => ({
+  text: `Close ticket #${ticketNumber}?`,
+  callback_id: 'close_confirmation',
+  atatchment_type: 'default',
+  actions: [
+    {
+      name: 'CANCEL_CLOSE',
+      text: 'Cancel',
+      style: 'danger',
+      type: 'button',
+      value: 'cancel',
+    },
+    {
+      name: 'CONFIRM_CLOSE',
+      text: 'Close ticket',
+      type: 'button',
+      value: ticketId,
+    },
+  ],
+});

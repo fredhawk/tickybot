@@ -64,14 +64,32 @@ exports.CONFIRM_OPEN = async ({
 
 // TODO Ask for confirmation
 exports.CLOSE = async ({
-  isAdmin, ticketNumber, ticketId, userId, teamId,
+  isAdmin, ticketNumber, ticketId, userId,
 }) => {
-  if (!isAdmin) {
-    await firebaseHandler.updateTicket(ticketId, userId, teamId, 'closed');
+  const ticketAuthor = await firebaseHandler.getAuthorByTicketId(ticketId);
+  if (!isAdmin && ticketAuthor === userId) {
     return {
-      text: `Close ticket #${ticketNumber}?`,
+      attachments: [attach.confirmClose(ticketNumber, ticketId)],
     };
   }
+  return {
+    text: 'Not allowed.',
+  };
+};
+
+exports.CANCEL_CLOSE = ({ isAdmin }) => {
+  const text = 'Close cancelled.';
+  return {
+    resplace_original: true,
+    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
+  };
+};
+
+exports.CONFIRM_CLOSE = async ({ data: ticketId, userId, teamId }) => {
+  const ticket = await firebaseHandler.updateTicket(ticketId, userId, teamId, 'closed');
+  return {
+    text: `Ticket #${ticket.ticketNumber}closed.`,
+  };
 };
 
 // Change ticket status
@@ -97,7 +115,7 @@ exports.UNSOLVE = async ({
   }
 };
 
-// Delete ticket in response to DELETE action button from open ticket confiramtiom message
+// Delete ticket in response to DELETE action button from open ticket confiramtiom ticketText
 exports.DELETE = ticketId =>
   // await firebaseHandler.removeOneTicket(ticketId)
   ({
