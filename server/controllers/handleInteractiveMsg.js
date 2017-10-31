@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
     username,
     teamId,
     actionType,
-    data, // ticketText or ticketNumber
+    data, // ticketText or ticketId
   };
 
   const response = await responses[actionType](responseParams);

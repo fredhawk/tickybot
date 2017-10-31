@@ -64,13 +64,13 @@ exports.helpOrShowInteractive = (isAdmin, text) => ({
   actions: [
     {
       name: 'HELP',
-      text: 'Usage examples',
+      text: 'Help',
       type: 'button',
       value: 'help',
     },
     {
       name: 'SHOW',
-      text: 'View my tickets',
+      text: isAdmin ? 'View open tickets' : 'View my tickets',
       type: 'button',
       value: 'show',
     },
@@ -113,6 +113,27 @@ exports.confirmClose = (ticketNumber, ticketId) => ({
     {
       name: 'CONFIRM_CLOSE',
       text: 'Close ticket',
+      type: 'button',
+      value: ticketId,
+    },
+  ],
+});
+
+exports.confirmSolve = (ticketNumber, ticketId, ticketText) => ({
+  text: `Solve ticket #${ticketNumber}: ${ticketText}?`,
+  callback_id: 'close_confirmation',
+  atatchment_type: 'default',
+  actions: [
+    {
+      name: 'CANCEL_SOLVE',
+      text: 'Cancel',
+      style: 'danger',
+      type: 'button',
+      value: 'cancel',
+    },
+    {
+      name: 'CONFIRM_SOLVE',
+      text: 'Solve ticket',
       type: 'button',
       value: ticketId,
     },

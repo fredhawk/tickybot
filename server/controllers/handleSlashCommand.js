@@ -29,6 +29,9 @@ module.exports = async (req, res) => {
   let response = {};
   let ticketNumber = null;
   let ticketId = null;
+  let ticketStatus = null;
+  let ticketAuthor = null;
+  let ticketTeam = null;
 
   // Construct promises array for initial async calls
   const promises = [getUserInfo(userId)];
@@ -46,6 +49,12 @@ module.exports = async (req, res) => {
     const isAdmin = true;
     if (result[1]) {
       [ticketId] = Object.keys(result[1]);
+      ({
+        text: ticketText,
+        status: ticketStatus,
+        author: ticketAuthor,
+        team: ticketTeam,
+      } = result[1][ticketId]);
     }
 
     if (!text) {
@@ -65,10 +74,14 @@ module.exports = async (req, res) => {
         isAdmin,
         ticketNumber,
         ticketId,
+        ticketAuthor,
+        ticketText,
+        ticketStatus,
+        ticketTeam,
       };
 
       if (commands.includes(command)) {
-        ticketText = tokenized.splice(1).join(' ');
+        ticketText = ticketText || tokenized.splice(1).join(' ');
         response = await responses[command]({ ...responseParams, ticketText });
       } else if (!isAdmin) {
         ticketText = tokenized.join(' ');
