@@ -4,44 +4,32 @@ const { sendMessage } = require('../handlers/responseHandlers');
 module.exports = async (req, res) => {
   res.status(200).end();
 
-  /*
-  Determine admin status (https://api.slack.com/methods/users.info)
-  const userInfo = await getUserInfo(user_id);
-  const isAdmin = userInfo.is_admin
-  */
-  const isAdmin = false;
-
   const {
     callback_id: callbackId,
+    user: { id: userId, name: username },
     team: { id: teamId },
     response_url: responseURL,
-    actions: [{ name: actionType, value: ticketId }],
+    actions: [{ name: actionType, value: data }],
   } = res.locals.payload;
+
+  /*
+  Determine admin status (https://api.slack.com/methods/users.info)
+  const isAdmin = (await getUserInfo(user_id)).is_admin;
+  const isAdmin = userInfo.is_admin
+  */
+  const isAdmin = true;
 
   const responseParams = {
     isAdmin,
     callbackId,
+    userId,
+    username,
     teamId,
     actionType,
-    ticketId,
+    data, // ticketText or ticketNumber
   };
 
-  let response = {};
-
-  // let response = { text: 'Test response', replace_original: false };
-
-  if (actionType === 'show') {
-    response = {
-      replace_original: true,
-      ...(await responses.SHOW(responseParams)),
-    };
-  }
-  if (actionType === 'delete') {
-    response = {
-      replace_original: true,
-      ...(await responses.DELETE(ticketId)),
-    };
-  }
+  const response = await responses[actionType](responseParams);
 
   sendMessage(responseURL, response);
 };

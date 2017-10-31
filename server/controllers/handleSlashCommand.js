@@ -16,8 +16,6 @@ module.exports = async (req, res) => {
   but return ERROR to admins.
   */
 
-  console.time('SLASH_COMMAND');
-
   const {
     text,
     user_id: userId,
@@ -27,7 +25,7 @@ module.exports = async (req, res) => {
   } = req.body;
 
   let command = '';
-  let message = '';
+  let ticketText = '';
   let response = {};
   let ticketNumber = null;
   let ticketId = null;
@@ -45,8 +43,8 @@ module.exports = async (req, res) => {
 
   Promise.all(promises).then(async (result) => {
     // const isAdmin = result[0].is_admin;
-    const isAdmin = false;
-    if (result.length > 1) {
+    const isAdmin = true;
+    if (result[1]) {
       [ticketId] = Object.keys(result[1]);
     }
 
@@ -70,27 +68,26 @@ module.exports = async (req, res) => {
       };
 
       if (commands.includes(command)) {
-        message = tokenized.splice(1).join(' ');
-        response = await responses[command]({ ...responseParams, message });
+        ticketText = tokenized.splice(1).join(' ');
+        response = await responses[command]({ ...responseParams, ticketText });
       } else if (!isAdmin) {
-        message = tokenized.join(' ');
-        response = await responses.OPEN({ ...responseParams, message });
+        ticketText = tokenized.join(' ');
+        response = await responses.OPEN({ ...responseParams, ticketText });
       } else {
         response = await responses.ERROR({ isAdmin });
       }
     }
 
-    // console.log({
-    //   message,
-    //   isAdmin,
-    //   command,
-    //   ticketNumber,
-    //   ticketId,
-    //   response,
-    //   request: req.body,
-    // });
+    console.log({
+      ticketText,
+      isAdmin,
+      command,
+      ticketNumber,
+      ticketId,
+      // response,
+      // request: req.body,
+    });
 
     sendMessage(responseURL, response);
-    console.timeEnd('SLASH_COMMAND');
   });
 };

@@ -12,6 +12,7 @@ exports.HELLO = async ({ isAdmin, teamId, userId }) => {
 
 // Show usage instructions
 exports.HELP = ({ isAdmin }) => ({
+  resplace_original: false,
   text: 'Need help? Here are some exmaples:',
   attachments: [attach.usage(isAdmin)],
 });
@@ -20,6 +21,7 @@ exports.HELP = ({ isAdmin }) => ({
 exports.SHOW = async ({ isAdmin, teamId, userId }) => {
   const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
   return {
+    resplace_original: false,
     attachments: [attach.show(isAdmin, tickets, userId)],
   };
 };
@@ -30,19 +32,33 @@ exports.ERROR = ({ isAdmin }) => ({
   attachments: [attach.usage(isAdmin)],
 });
 
-// FIXME At the moment directly saves the tickets. Will rework into asking confirmation first
-exports.OPEN = async ({
-  userId, teamId, username, message, isAdmin, ticketId,
+// Ask for confirmation before submitting a ticket
+exports.OPEN = async ({ isAdmin, ticketText }) => ({
+  attachments: [attach.confirmOpen(ticketText)],
+});
+
+exports.CANCEL_OPEN = ({ isAdmin }) => {
+  const text = 'Submit cancelled.';
+  return {
+    resplace_original: true,
+    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
+  };
+};
+
+exports.CONFIRM_OPEN = async ({
+  userId, teamId, username, isAdmin, data: ticketText,
 }) => {
   const ticketNumber = await firebaseHandler.addNewTicket(
     userId,
     teamId,
     username,
-    message,
+    ticketText,
     isAdmin,
   );
+  const text = `Ticket #${ticketNumber} submitted: ${ticketText}`;
   return {
-    attachments: [attach.confirmOpen(ticketNumber, ticketId, message)],
+    resplace_original: true,
+    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
   };
 };
 

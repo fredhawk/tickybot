@@ -7,6 +7,12 @@ exports.usage = isAdmin => ({
 });
 
 exports.show = (isAdmin = false, tickets, userId) => {
+  // // Construct ticket menu attachments
+  // const options = Object.keys(tickets).map(id => ({
+  //   text: `#${tickets[id].ticketNumber} - ${tickets[id].text}`,
+  //   value: id,
+  // }));
+
   // Filter tickets to show
   const openTickets = [];
   const openUserTickets = [];
@@ -51,37 +57,49 @@ exports.show = (isAdmin = false, tickets, userId) => {
       },
       {
         title: 'Pending',
-        value: format(openUserTickets) || 'no open tickets. Hooray!',
+        value: format(openUserTickets) || 'No open tickets. Hooray!',
       },
     ],
-    // actions: [
-    //   {
-    //     name: 'ticket-list',
-    //     text: 'Pick a ticket',
-    //     type: 'select',
-    //     options,
-    //   },
-    // ],
   };
 };
 
-exports.confirmOpen = (ticketNumber, ticketId, message) => ({
-  text: `Ticket #${ticketNumber} - ${message} submitted.`,
-  callback_id: 'open_confirmation',
+exports.helpOrShowInteractive = (isAdmin, text) => ({
+  text,
+  callback_id: 'helpOrShow',
   atatchemnt_type: 'default',
   actions: [
     {
-      name: 'delete',
-      text: 'Delete',
-      style: 'danger',
+      name: 'HELP',
+      text: 'Usage examples',
       type: 'button',
-      value: ticketId,
+      value: 'help',
     },
     {
-      name: 'show',
-      text: 'View All',
+      name: 'SHOW',
+      text: 'View my tickets',
       type: 'button',
       value: 'show',
+    },
+  ],
+});
+
+exports.confirmOpen = message => ({
+  text: `Submit ticket with text: ${message}?`,
+  callback_id: 'open_confirmation',
+  atatchment_type: 'default',
+  actions: [
+    {
+      name: 'CANCEL_OPEN',
+      text: 'Cancel',
+      style: 'danger',
+      type: 'button',
+      value: 'cancel',
+    },
+    {
+      name: 'CONFIRM_OPEN',
+      text: 'Submit',
+      type: 'button',
+      value: message,
     },
   ],
 });
