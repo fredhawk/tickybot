@@ -1,5 +1,6 @@
 const attach = require('./attachments');
 const firebaseHandler = require('../handlers/firebaseHandlers');
+const { status } = require('../utils/constants');
 
 // Show open and/or pending tickets and usage instructions
 exports.HELLO = async ({ isAdmin, teamId, userId }) => {
@@ -19,6 +20,7 @@ exports.HELP = ({ isAdmin }) => ({
 
 // Show open tickets to admins and open/solved to users
 exports.SHOW = async ({ isAdmin, teamId, userId }) => {
+  // TODO Get solved tickets
   const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
   return {
     resplace_original: false,
@@ -27,155 +29,83 @@ exports.SHOW = async ({ isAdmin, teamId, userId }) => {
 };
 
 // Response to unrecognized inputs
-exports.ERROR = ({ isAdmin }) => ({
+exports.ERROR = isAdmin => ({
   text: "I don't understand.. :thinking_face: \n Check some usage examples below:",
   attachments: [attach.usage(isAdmin)],
 });
 
-// Ask for confirmation before submitting a ticket
-exports.OPEN = async ({ isAdmin, ticketText }) => ({
-  attachments: [attach.confirmOpen(ticketText)],
-});
+// INITIAL SLASH COMMAND RESPONSES
 
-exports.CANCEL_OPEN = ({ isAdmin }) => {
-  const text = 'Submit cancelled.';
-  return {
-    resplace_original: true,
-    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
+exports.OPEN = async ({ isAdmin, command, ticket }) =>
+  !isAdmin && {
+    attachments: [attach.confirm(command, ticket)],
   };
-};
 
-exports.CONFIRM_OPEN = async ({
-  userId, teamId, username, isAdmin, data: ticketText,
-}) => {
-  const ticketNumber = await firebaseHandler.addNewTicket(
-    userId,
-    teamId,
-    username,
-    ticketText,
-    isAdmin,
-  );
-  const text = `Ticket #${ticketNumber} submitted: ${ticketText}`;
-  return {
-    resplace_original: true,
-    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
-  };
-};
-
-// TODO Ask for confirmation
 exports.CLOSE = async ({
-  isAdmin, ticketNumber, ticketId, userId,
+  isAdmin, command, userId, ticket,
 }) => {
-  const ticketAuthor = await firebaseHandler.getAuthorByTicketId(ticketId);
-  if (!isAdmin && ticketAuthor === userId) {
-    return {
-      attachments: [attach.confirmClose(ticketNumber, ticketId)],
-    };
+  if (!isAdmin && ticket.author === userId && ticket.status !== 'closed') {
+    return { attachments: [attach.confirm(command, ticket)] };
+  } else if (ticket.status === 'closed') {
+    return { text: `Ticket #${ticket.number} already closed` };
   }
-  return {
-    text: 'Not allowed.',
-  };
-};
-
-exports.CANCEL_CLOSE = ({ isAdmin }) => {
-  const text = 'Close cancelled.';
-  return {
-    resplace_original: true,
-    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
-  };
-};
-
-exports.CONFIRM_CLOSE = async ({ data: ticketId, userId, teamId }) => {
-  const ticket = await firebaseHandler.updateTicket(ticketId, userId, teamId, 'closed');
-  return {
-    text: `Ticket #${ticket.ticketNumber}closed.`,
-  };
+  return { text: 'Not allowed.', attachments: [attach.usage(isAdmin)] };
 };
 
 exports.SOLVE = async ({
-  isAdmin,
-  ticketNumber,
-  ticketId,
-  ticketStatus,
-  ticketText,
-  teamId,
-  ticketTeam,
+  isAdmin, command, ticket, teamId,
 }) => {
-  if (ticketTeam !== teamId) {
-    return { text: `Ticket #${ticketNumber} belongs to another team.` };
-  } else if (ticketStatus !== 'open') {
-    return { text: `Ticket #${ticketNumber} is ${ticketStatus}.` };
+  if (ticket.team !== teamId) {
+    return { text: `Ticket #${ticket.number} doesn't exist in this team.` };
+  } else if (ticket.status !== 'open') {
+    return { text: `Ticket #${ticket.number} is ${ticket.status}.` };
   } else if (isAdmin) {
-    return {
-      attachments: [attach.confirmSolve(ticketNumber, ticketId, ticketText)],
-    };
+    return { attachments: [attach.confirm(command, ticket)] };
   }
-};
-
-exports.CANCEL_SOLVE = ({ isAdmin }) => {
-  const text = 'Solve cancelled.';
-  return {
-    resplace_original: true,
-    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
-  };
-};
-
-exports.CONFIRM_SOLVE = async ({ data: ticketId, userId, teamId }) => {
-  const ticket = await firebaseHandler.updateTicket(ticketId, userId, teamId, 'solved');
-  return {
-    text: `Ticket #${ticket.ticketNumber} solved.`,
-  };
 };
 
 exports.UNSOLVE = async ({
-  isAdmin,
-  ticketNumber,
-  ticketId,
-  ticketStatus,
-  ticketText,
-  teamId,
-  ticketTeam,
+  isAdmin, command, ticket, teamId,
 }) => {
-  if (ticketTeam !== teamId) {
-    return { text: `Ticket #${ticketNumber} belongs to another team.` };
-  } else if (ticketStatus !== 'solved') {
-    return { text: `Not allowed. Ticket #${ticketNumber} is ${ticketStatus}.` };
+  if (ticket.team !== teamId) {
+    return { text: `Ticket #${ticket.number} belongs to another team.` };
+  } else if (ticket.status !== 'solved') {
+    return { text: `Not allowed. Ticket #${ticket.number} is ${ticket.status}.` };
   } else if (!isAdmin) {
-    return {
-      attachments: [attach.confirmUnsolve(ticketNumber, ticketId, ticketText)],
-    };
+    return { attachments: [attach.confirm(command, ticket)] };
   }
+  return { text: 'Not allowed', attachments: [attach.usage(isAdmin)] };
 };
 
-exports.CANCEL_UNSOLVE = ({ isAdmin }) => {
-  const text = 'Solve cancelled.';
+// CANCEL ACTION
+
+exports.CANCEL = ({ isAdmin }) => ({
+  resplace_original: true,
+  attachments: [attach.helpOrShowInteractive(isAdmin, 'Cancelled.')],
+});
+
+// CONFIRM ACTION
+
+exports.CONFIRM = async ({
+  isAdmin, command, userId, teamId, username, data,
+}) => {
+  let msg = '';
+  if (command === 'OPEN') {
+    const ticketNumber = await firebaseHandler.addNewTicket({
+      userId,
+      teamId,
+      username,
+      text: data,
+      isAdmin,
+    });
+    msg = `Ticket #${ticketNumber} submitted: ${data}`;
+  } else {
+    const { number } = await firebaseHandler.updateTicket(data, userId, teamId, status[command]);
+    msg = `Ticket #${number} is now ${status[command]}.`;
+  }
+
   return {
     resplace_original: true,
-    attachments: [attach.helpOrShowInteractive(isAdmin, text)],
+    text: msg,
   };
 };
-
-exports.CONFIRM_UNSOLVE = async ({ data: ticketId, userId, teamId }) => {
-  const ticket = await firebaseHandler.updateTicket(ticketId, userId, teamId, 'open');
-  return {
-    text: `Ticket #${ticket.ticketNumber} reopened.`,
-  };
-};
-
-// exports.UNSOLVE = async ({
-//   isAdmin, ticketNumber, ticketId, teamId, userId,
-// }) => {
-//   if (!isAdmin) {
-//     await firebaseHandler.updateTicket(ticketId, userId, teamId, 'open');
-//     return {
-//       text: `Nope. # ${ticketNumber}isn't solved`,
-//     };
-//   }
-// };
-
-// Delete ticket in response to DELETE action button from open ticket confiramtiom ticketText
-exports.DELETE = ticketId =>
-  // await firebaseHandler.removeOneTicket(ticketId)
-  ({
-    text: 'Ticket deleted',
-  });
