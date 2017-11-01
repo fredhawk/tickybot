@@ -7,8 +7,7 @@ exports.sendMessage = (responseURL, message) => {
     headers: { 'Content-type': 'application-json' },
     json: message,
   };
-
-  request(options).catch(() => console.log('Error sending message'));
+  request(options).catch(err => console.log({ err }));
 };
 
 // Requires USERS.PROFILE scope in Slack app permissions
@@ -20,5 +19,5 @@ exports.getUserInfo = (UserId) => {
   return request
     .post('https://slack.com/api/users.info', { form: data })
     .then(res => JSON.parse(res).user)
-    .catch(err => console.log(err));
+    .catch(err => console.log({ err }));
 };
