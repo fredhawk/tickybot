@@ -139,3 +139,26 @@ exports.confirmSolve = (ticketNumber, ticketId, ticketText) => ({
     },
   ],
 });
+  ],
+});
+
+exports.confirmUnsolve = (ticketNumber, ticketId, ticketText) => ({
+  text: `Reopen ticket #${ticketNumber}: ${ticketText}?`,
+  callback_id: 'unsolve_confirmation',
+  atatchment_type: 'default',
+  actions: [
+    {
+      name: 'CANCEL_UNSOLVE',
+      text: 'Cancel',
+      style: 'danger',
+      type: 'button',
+      value: 'cancel',
+    },
+    {
+      name: 'CONFIRM_UNSOLVE',
+      text: 'Reopen ticket',
+      type: 'button',
+      value: ticketId,
+    },
+  ],
+});
