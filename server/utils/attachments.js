@@ -1,25 +1,43 @@
 const { examples } = require('./constants');
 
+
+/**
+ * @param {bool} isAdmin - Admin status
+ */
 exports.usage = isAdmin => ({
   title: 'Usage',
   text: isAdmin ? examples.admin : examples.user,
   mrkdwn_in: ['text'],
 });
 
-exports.show = (isAdmin = false, tickets, userId) => {
-  // // Construct ticket menu attachments
-  // const options = Object.keys(tickets).map(id => ({
-  //   text: `#${tickets[id].ticketNumber} - ${tickets[id].text}`,
-  //   value: id,
-  // }));
+/**
+ * @param {bool} isAdmin - Admin status
+ * @param {array} tickets - An array of prefetced tickets
+ * @param{string} userId
+ */
+exports.show = (isAdmin, tickets, userId) => {
+  /**
+   *
+   *
+   * TODO
+   *
+   *
+   */
 
-  // Filter tickets to show
-  const openTickets = [];
+  // If no tickets in database
+  if (!tickets) {
+    return {
+      text: 'No tickets to show. Yay',
+    };
+  }
+
+  // Filter tickets to show TODO
+  const teamOpenTickets = [];
   const openUserTickets = [];
   const solvedUserTickets = [];
 
   Object.values(tickets).forEach((ticket) => {
-    if (isAdmin && ticket.status === 'open') openTickets.push(ticket);
+    if (isAdmin && ticket.status === 'open') teamOpenTickets.push(ticket);
     else if (ticket.status === 'open' && ticket.author === userId) {
       openUserTickets.push(ticket);
     } else if (ticket.status === 'solved' && ticket.author === userId) {
@@ -30,14 +48,13 @@ exports.show = (isAdmin = false, tickets, userId) => {
   // FIXME format visible ticket
   const format = arr =>
     arr
-      .map(ticket =>
-        `#${ticket.ticketNumber} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
+      .map(ticket => `#${ticket.number} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
       .join('\n');
 
   if (isAdmin) {
     return {
       title: 'All open tickets',
-      text: format(openTickets),
+      text: format(teamOpenTickets),
     };
   }
   return {
@@ -57,10 +74,15 @@ exports.show = (isAdmin = false, tickets, userId) => {
   };
 };
 
-exports.helpOrShowInteractive = (isAdmin, text) => ({
-  text,
+/**
+ * @param {bool} isAdmin -  admin status
+ * @param {string} message
+ * @returns {object} Response message
+ */
+exports.helpOrShowInteractive = (isAdmin, message) => ({
+  text: message,
   callback_id: 'helpOrShow',
-  atatchemnt_type: 'default',
+  attachemnt_type: 'default',
   actions: [
     {
       name: 'HELP',
@@ -77,88 +99,37 @@ exports.helpOrShowInteractive = (isAdmin, text) => ({
   ],
 });
 
-exports.confirmOpen = message => ({
-  text: `Submit ticket with text: ${message}?`,
-  callback_id: 'open_confirmation',
-  atatchment_type: 'default',
-  actions: [
-    {
-      name: 'CANCEL_OPEN',
-      text: 'Cancel',
-      style: 'danger',
-      type: 'button',
-      value: 'cancel',
-    },
-    {
-      name: 'CONFIRM_OPEN',
-      text: 'Submit',
-      type: 'button',
-      value: message,
-    },
-  ],
-});
+/**
+ * @param {string} command - Initial slash command
+ * @param {object} ticket: {id, text, number} - Ticket referenced in a slash command
+ * @returns {object} Constructed attachment to send with a response message
+ */
+exports.confirm = (command, ticket) => {
+  const { id, text, number } = ticket;
+  // Determine response message
+  const msg =
+    command === 'OPEN'
+      ? `Submit ticket with text: ${text}?`
+      : `${command} ticket #${number}: ${text}?`;
 
-exports.confirmClose = (ticketNumber, ticketId) => ({
-  text: `Close ticket #${ticketNumber}?`,
-  callback_id: 'close_confirmation',
-  atatchment_type: 'default',
-  actions: [
-    {
-      name: 'CANCEL_CLOSE',
-      text: 'Cancel',
-      style: 'danger',
-      type: 'button',
-      value: 'cancel',
-    },
-    {
-      name: 'CONFIRM_CLOSE',
-      text: 'Close ticket',
-      type: 'button',
-      value: ticketId,
-    },
-  ],
-});
-
-exports.confirmSolve = (ticketNumber, ticketId, ticketText) => ({
-  text: `Solve ticket #${ticketNumber}: ${ticketText}?`,
-  callback_id: 'close_confirmation',
-  atatchment_type: 'default',
-  actions: [
-    {
-      name: 'CANCEL_SOLVE',
-      text: 'Cancel',
-      style: 'danger',
-      type: 'button',
-      value: 'cancel',
-    },
-    {
-      name: 'CONFIRM_SOLVE',
-      text: 'Solve ticket',
-      type: 'button',
-      value: ticketId,
-    },
-  ],
-});
-  ],
-});
-
-exports.confirmUnsolve = (ticketNumber, ticketId, ticketText) => ({
-  text: `Reopen ticket #${ticketNumber}: ${ticketText}?`,
-  callback_id: 'unsolve_confirmation',
-  atatchment_type: 'default',
-  actions: [
-    {
-      name: 'CANCEL_UNSOLVE',
-      text: 'Cancel',
-      style: 'danger',
-      type: 'button',
-      value: 'cancel',
-    },
-    {
-      name: 'CONFIRM_UNSOLVE',
-      text: 'Reopen ticket',
-      type: 'button',
-      value: ticketId,
-    },
-  ],
-});
+  return {
+    text: msg,
+    callback_id: `CONFIRM_${command}`,
+    attachment_type: 'default',
+    actions: [
+      {
+        name: 'CANCEL',
+        text: 'Cancel',
+        style: 'danger',
+        type: 'button',
+        value: 'cancel',
+      },
+      {
+        name: command,
+        text: command === 'UNSOLVE' ? 'REOPEN' : command,
+        type: 'button',
+        value: id || text, // Id is only undefined when OPENing a new ticket
+      },
+    ],
+  };
+};
