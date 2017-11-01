@@ -6,15 +6,12 @@ const firebaseHandler = require('../handlers/firebaseHandlers');
 module.exports = async (req, res) => {
   res.status(200).end();
 
-  /*
-  Content from users comes in as req.
-  If no input other than /ticket given, assign HELLO action
-  which returns default response with usage instructions and ticket status ???
-  Otherwise tokenize input, parse input into command and a message
-  and determine the appropriate action to take.
-  If command not recognized treat entire input as a ticket message for users,
-  but return ERROR to admins.
-  */
+  /**
+   * Content from users comes in as req.
+   * If no input aside from slash command entered, send HELLO response.
+   * Otherwise tokenize input and extract command, optionsl ticket reference and the message and respond accordingly
+   * If command not recognized, respond with ERROR response
+   */
 
   const {
     text,
@@ -25,38 +22,32 @@ module.exports = async (req, res) => {
   } = req.body;
 
   let command = '';
-  let ticketText = '';
+  let ticket = {};
   let response = {};
-  let ticketNumber = null;
-  let ticketId = null;
-  let ticketStatus = null;
-  let ticketAuthor = null;
-  let ticketTeam = null;
+  let num = null;
 
   // Construct promises array for initial async calls
   const promises = [getUserInfo(userId)];
 
-  // Find ticket reference in #[number] format
+  /**
+   * Find the ticket reference in #[number] format.
+   * Get ticket info if reference exists
+   */
   const ticketReference = text.match(/#\d+/g);
   if (ticketReference) {
-    // Extract and convert ticketNumber to number type. Push to promises array
-    ticketNumber = +ticketReference[0].substring(1);
-    promises.push(firebaseHandler.getTicketByNumber(ticketNumber));
+    num = +ticketReference[0].substring(1);
+    promises.push(firebaseHandler.getTicketByNumber(num));
   }
 
   Promise.all(promises).then(async (result) => {
     // const isAdmin = result[0].is_admin;
-    const isAdmin = true;
+    const isAdmin = false;
     if (result[1]) {
-      [ticketId] = Object.keys(result[1]);
-      ({
-        text: ticketText,
-        status: ticketStatus,
-        author: ticketAuthor,
-        team: ticketTeam,
-      } = result[1][ticketId]);
-    }
+      [ticket] = Object.values(result[1]);
+      [ticket.id] = Object.keys(result[1]);
+    } else ticket.number = num;
 
+    // Send HELLO response if no input text detected
     if (!text) {
       response = await responses.HELLO({ isAdmin, teamId, userId });
     } else {
@@ -68,38 +59,33 @@ module.exports = async (req, res) => {
       }
 
       const responseParams = {
+        command,
         userId,
         username,
         teamId,
         isAdmin,
-        ticketNumber,
-        ticketId,
-        ticketAuthor,
-        ticketText,
-        ticketStatus,
-        ticketTeam,
+        ticket,
       };
 
+      // Determine appropriate response
       if (commands.includes(command)) {
-        ticketText = ticketText || tokenized.splice(1).join(' ');
-        response = await responses[command]({ ...responseParams, ticketText });
+        ticket.text = ticket.text || tokenized.splice(1).join(' ');
+        response = await responses[command](responseParams);
       } else if (!isAdmin) {
-        ticketText = tokenized.join(' ');
-        response = await responses.OPEN({ ...responseParams, ticketText });
+        ticket.text = ticket.text || tokenized.join(' ');
+        response = await responses.OPEN(responseParams);
       } else {
-        response = await responses.ERROR({ isAdmin });
+        response = await responses.ERROR(isAdmin);
       }
     }
 
-    console.log({
-      ticketText,
-      isAdmin,
-      command,
-      ticketNumber,
-      ticketId,
-      // response,
-      // request: req.body,
-    });
+    // console.log({
+    //   ticket,
+    //   isAdmin,
+    //   command,
+    //   response,
+    //   request: req.body,
+    // });
 
     sendMessage(responseURL, response);
   });

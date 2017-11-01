@@ -1,15 +1,20 @@
 const responses = require('../utils/responses');
 const { sendMessage } = require('../handlers/responseHandlers');
+const { commands } = require('../utils/constants');
 
 module.exports = async (req, res) => {
   res.status(200).end();
 
+  /**
+   * Input from action buttons.
+   * Detect appropriate response by actions.name property and respond accordingly
+   */
   const {
     callback_id: callbackId,
     user: { id: userId, name: username },
     team: { id: teamId },
     response_url: responseURL,
-    actions: [{ name: actionType, value: data }],
+    actions: [{ name: command, value: data }],
   } = res.locals.payload;
 
   /*
@@ -17,7 +22,7 @@ module.exports = async (req, res) => {
   const isAdmin = (await getUserInfo(user_id)).is_admin;
   const isAdmin = userInfo.is_admin
   */
-  const isAdmin = true;
+  const isAdmin = false;
 
   const responseParams = {
     isAdmin,
@@ -25,11 +30,17 @@ module.exports = async (req, res) => {
     userId,
     username,
     teamId,
-    actionType,
-    data, // ticketText or ticketId
+    command,
+    data, // ticket text or id
   };
 
-  const response = await responses[actionType](responseParams);
+  // Determine appropriate response
+  let response = null;
+  if (command === 'CANCEL' || command === 'HELP' || command === 'SHOW') {
+    response = await responses[command](responseParams);
+  } else {
+    response = await responses.CONFIRM(responseParams);
+  }
 
   sendMessage(responseURL, response);
 };
