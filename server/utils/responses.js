@@ -2,6 +2,17 @@ const attach = require('./attachments');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 const { status } = require('../utils/constants');
 
+/**
+ * Message responses based on intial slash commands or interactive messages
+ * @param {object} responseParams from handleSlashCommand OR handleInteractiveMsg
+ * @param {bool} object.isAdmim - Admin status of a user
+ * @param {string} obj.command - Initial slash command OR interactive button command
+ * @param {object} obj.ticket - An existing ticket referenced in a slash command OR a new ticket from OPEN slash command
+ * @param {string} obj.userId
+ * @param {string} obj.teamId
+ * @param {string} obj.data - Data received from an interactive message. Can be a new ticket text OR an existing ticket id
+ */
+
 // Show open and/or pending tickets and usage instructions
 exports.HELLO = async ({ isAdmin, teamId, userId }) => {
   const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
@@ -29,7 +40,7 @@ exports.SHOW = async ({ isAdmin, teamId, userId }) => {
 };
 
 // Response to unrecognized inputs
-exports.ERROR = isAdmin => ({
+exports.ERROR = ({ isAdmin }) => ({
   text: "I don't understand.. :thinking_face: \n Check some usage examples below:",
   attachments: [attach.usage(isAdmin)],
 });

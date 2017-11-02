@@ -4,6 +4,7 @@ const { sendMessage, getUserInfo } = require('../handlers/responseHandlers');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 
 module.exports = async (req, res) => {
+  // Respond quickly according to Slack best practices https://api.slack.com/interactive-messages
   res.status(200).end();
 
   /**
@@ -30,8 +31,8 @@ module.exports = async (req, res) => {
   const promises = [getUserInfo(userId)];
 
   /**
-   * Find the ticket reference in #[number] format.
-   * Get ticket info if reference exists
+   * Parse the input for possible ticket reference in #[number] format.
+   * If reference found, fetch existing ticket data
    */
   const ticketReference = text.match(/#\d+/g);
   if (ticketReference) {
@@ -42,6 +43,11 @@ module.exports = async (req, res) => {
   Promise.all(promises).then(async (result) => {
     // const isAdmin = result[0].is_admin;
     const isAdmin = false;
+
+    /*
+    If input referenced an existing ticket within the team, assign data to ticket object.
+    Otherwise, only assign referenced number for use in ERROR message
+    */
     if (result[1]) {
       [ticket] = Object.values(result[1]);
       [ticket.id] = Object.keys(result[1]);
@@ -75,7 +81,7 @@ module.exports = async (req, res) => {
         ticket.text = ticket.text || tokenized.join(' ');
         response = await responses.OPEN(responseParams);
       } else {
-        response = await responses.ERROR(isAdmin);
+        response = await responses.ERROR({ isAdmin });
       }
     }
 

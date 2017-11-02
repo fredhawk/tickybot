@@ -3,6 +3,7 @@ const { sendMessage } = require('../handlers/responseHandlers');
 const { commands } = require('../utils/constants');
 
 module.exports = async (req, res) => {
+  // Respond quickly according to Slack best practices https://api.slack.com/interactive-messages
   res.status(200).end();
 
   /**
@@ -18,9 +19,8 @@ module.exports = async (req, res) => {
   } = res.locals.payload;
 
   /*
-  Determine admin status (https://api.slack.com/methods/users.info)
+  Disabled for development
   const isAdmin = (await getUserInfo(user_id)).is_admin;
-  const isAdmin = userInfo.is_admin
   */
   const isAdmin = false;
 
@@ -31,10 +31,10 @@ module.exports = async (req, res) => {
     username,
     teamId,
     command,
-    data, // ticket text or id
+    data, // contains existing ticket id OR new ticket text
   };
 
-  // Determine appropriate response
+  // Determine and call an appropriate response
   let response = null;
   if (command === 'CANCEL' || command === 'HELP' || command === 'SHOW') {
     response = await responses[command](responseParams);

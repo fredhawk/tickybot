@@ -16,13 +16,14 @@ exports.usage = isAdmin => ({
  * @param{string} userId
  */
 exports.show = (isAdmin, tickets, userId) => {
-  /**
-   *
-   *
-   * TODO
-   *
-   *
-   */
+/*
+
+
+TODO
+
+
+
+*/
 
   // If no tickets in database
   if (!tickets) {
@@ -128,7 +129,7 @@ exports.confirm = (command, ticket) => {
         name: command,
         text: command === 'UNSOLVE' ? 'REOPEN' : command,
         type: 'button',
-        value: id || text, // Id is only undefined when OPENing a new ticket
+        value: id || text, // id is only undefined when OPENing a new ticket
       },
     ],
   };
