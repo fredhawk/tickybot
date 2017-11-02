@@ -78,20 +78,21 @@ module.exports = async (req, res) => {
         ticket.text = ticket.text || tokenized.splice(1).join(' ');
         response = await responses[command](responseParams);
       } else if (!isAdmin) {
+        responseParams.command = 'OPEN';
         ticket.text = ticket.text || tokenized.join(' ');
         response = await responses.OPEN(responseParams);
-      } else {
-        response = await responses.ERROR({ isAdmin });
       }
+
+      response = response || (await responses.ERROR({ isAdmin }));
     }
 
-    // console.log({
-    //   ticket,
-    //   isAdmin,
-    //   command,
-    //   response,
-    //   request: req.body,
-    // });
+    console.log({
+      ticket,
+      isAdmin,
+      command,
+      response,
+      request: req.body,
+    });
 
     sendMessage(responseURL, response);
   });
