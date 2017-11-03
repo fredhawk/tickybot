@@ -1,6 +1,7 @@
 const attach = require('./attachments');
 const firebaseHandler = require('../handlers/firebaseHandlers');
 const { status } = require('../utils/constants');
+const { sendDM } = require('../handlers/responseHandlers');
 
 /**
  * Message responses based on intial slash commands or interactive messages
@@ -98,9 +99,10 @@ exports.CANCEL = ({ isAdmin }) => ({
 exports.CONFIRM = async ({
   isAdmin, command, userId, teamId, username, data,
 }) => {
-  let msg = '';
+  let msg = null;
+  let ticketNumber = null;
   if (command === 'OPEN') {
-    const ticketNumber = await firebaseHandler.addNewTicket({
+    ticketNumber = await firebaseHandler.addNewTicket({
       userId,
       teamId,
       username,
@@ -111,6 +113,7 @@ exports.CONFIRM = async ({
   } else {
     const { number } = await firebaseHandler.updateTicket(data, userId, teamId, status[command]);
     msg = `Ticket #${number} is now ${status[command]}.`;
+    if (command === 'SOLVE') sendDM(userId, ticketNumber);
   }
 
   return {
