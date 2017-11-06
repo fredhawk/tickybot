@@ -1,5 +1,5 @@
 const { examples } = require('./constants');
-
+const firebaseHandler = require('../handlers/firebaseHandlers');
 
 /**
  * @param {bool} isAdmin - Admin status
@@ -15,64 +15,59 @@ exports.usage = isAdmin => ({
  * @param {array} tickets - An array of prefetced tickets
  * @param{string} userId
  */
-exports.show = (isAdmin, tickets, userId) => {
-/*
-
-
-TODO
-
-
-
-*/
-
-  // If no tickets in database
-  if (!tickets) {
-    return {
-      text: 'No tickets to show. Yay',
-    };
-  }
-
-  // Filter tickets to show TODO
-  const teamOpenTickets = [];
-  const openUserTickets = [];
-  const solvedUserTickets = [];
-
-  Object.values(tickets).forEach((ticket) => {
-    if (isAdmin && ticket.status === 'open') teamOpenTickets.push(ticket);
-    else if (ticket.status === 'open' && ticket.author === userId) {
-      openUserTickets.push(ticket);
-    } else if (ticket.status === 'solved' && ticket.author === userId) {
-      solvedUserTickets.push(ticket);
-    }
-  });
-
-  // FIXME format visible ticket
-  const format = arr =>
-    arr
-      .map(ticket => `#${ticket.number} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
-      .join('\n');
-
+exports.show = async ({ isAdmin, userId, teamId }) => {
+  let promises = null;
   if (isAdmin) {
-    return {
-      title: 'All open tickets',
-      text: format(teamOpenTickets),
-    };
+    promises = [firebaseHandler.getAllOpenTicketsByTeam(teamId)];
+  } else {
+    promises = [
+      firebaseHandler.getAllOpenTicketsByUser(userId),
+      firebaseHandler.getAllSolvedTicketsByUser(userId),
+    ];
   }
-  return {
-    title: 'Your Tickets',
-    title_link: 'https://www.ticketbot.commm',
-    callback_id: 'ticket-select',
-    fields: [
-      {
-        title: 'Solved',
-        value: format(solvedUserTickets) || 'No solved tickets',
-      },
-      {
-        title: 'Pending',
-        value: format(openUserTickets) || 'No open tickets. Hooray!',
-      },
-    ],
-  };
+
+  return Promise.all(promises)
+    .then((tickets) => {
+      const ticketsOpen = Object.values(tickets[0]);
+      const ticketsSolved = tickets[1] && Object.values(tickets[1]);
+
+      // If no tickets in database
+      if (!ticketsOpen && !ticketsSolved) {
+        return {
+          text: 'No tickets to show. Yay',
+        };
+      }
+
+      // FIXME format visible ticket
+      const format = arr =>
+        arr
+          .map(ticket =>
+            `#${ticket.number} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
+          .join('\n');
+
+      if (isAdmin) {
+        return {
+          title: 'All open tickets',
+          text: format(ticketsOpen),
+        };
+      }
+      return {
+        title: 'Your Tickets',
+        title_link: 'https://www.ticketbot.commm',
+        callback_id: 'ticket-select',
+        fields: [
+          {
+            title: 'Solved',
+            value: format(ticketsSolved) || 'No solved tickets.',
+          },
+          {
+            title: 'Pending',
+            value: format(ticketsOpen) || 'No open tickets. Woohoo!',
+          },
+        ],
+      };
+    })
+    .catch(console.log);
 };
 
 /**

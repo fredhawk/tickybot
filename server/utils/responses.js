@@ -15,13 +15,10 @@ const { sendDM } = require('../handlers/responseHandlers');
  */
 
 // Show open and/or pending tickets and usage instructions
-exports.HELLO = async ({ isAdmin, teamId, userId }) => {
-  const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
-  return {
-    text: ':wave: Hello',
-    attachments: [attach.show(isAdmin, tickets, userId), attach.usage(isAdmin)],
-  };
-};
+exports.HELLO = params => ({
+  text: ':wave: Hello',
+  attachments: [attach.show(params), attach.usage(params.isAdmin)],
+});
 
 // Show usage instructions
 exports.HELP = ({ isAdmin }) => ({
@@ -31,14 +28,10 @@ exports.HELP = ({ isAdmin }) => ({
 });
 
 // Show open tickets to admins and open/solved to users
-exports.SHOW = async ({ isAdmin, teamId, userId }) => {
-  // TODO Get solved tickets
-  const tickets = await firebaseHandler.getAllOpenTicketsByTeam(teamId);
-  return {
-    resplace_original: false,
-    attachments: [attach.show(isAdmin, tickets, userId)],
-  };
-};
+exports.SHOW = async params => ({
+  resplace_original: false,
+  attachments: [await attach.show(params)],
+});
 
 // Response to unrecognized inputs
 exports.ERROR = ({ isAdmin }) => ({

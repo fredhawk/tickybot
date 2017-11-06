@@ -32,7 +32,7 @@ exports.sendDM = async (userId, ticketNumber) => {
     form: {
       id: 'ticket-solved',
       as_user: false,
-      text: `Your ticket #${ticketNumber} has been solved. Please `,
+      text: `Your ticket #${ticketNumber} has been solved. `,
       token: process.env.SLACK_BOT_OAUTH_TOKEN,
       channel: userChannelId,
     },

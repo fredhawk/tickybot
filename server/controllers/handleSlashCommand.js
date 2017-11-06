@@ -40,60 +40,63 @@ module.exports = async (req, res) => {
     promises.push(firebaseHandler.getTicketByNumber(num));
   }
 
-  Promise.all(promises).then(async (result) => {
-    // const isAdmin = result[0].is_admin;
-    const isAdmin = false;
+  Promise.all(promises)
+    .then(async (result) => {
+      // FOR DEVELOPMETN: Comment fetch and set isAdmin manually
+      // const isAdmin = result[0].is_admin;
+      const isAdmin = false;
 
-    /*
+      /*
     If input referenced an existing ticket within the team, assign data to ticket object.
     Otherwise, only assign referenced number for use in ERROR message
     */
-    if (result[1]) {
-      [ticket] = Object.values(result[1]);
-      [ticket.id] = Object.keys(result[1]);
-    } else ticket.number = num;
+      if (result[1]) {
+        [ticket] = Object.values(result[1]);
+        [ticket.id] = Object.keys(result[1]);
+      } else ticket.number = num;
 
-    // Send HELLO response if no input text detected
-    if (!text) {
-      response = await responses.HELLO({ isAdmin, teamId, userId });
-    } else {
-      let tokenized = text.match(/\S+/g);
-      command = tokenized[0].toUpperCase();
+      // Send HELLO response if no input text detected
+      if (!text) {
+        response = await responses.HELLO({ isAdmin, teamId, userId });
+      } else {
+        let tokenized = text.match(/\S+/g);
+        command = tokenized[0].toUpperCase();
 
-      if (ticketReference) {
-        tokenized = tokenized.filter(token => token !== ticketReference[0]);
+        if (ticketReference) {
+          tokenized = tokenized.filter(token => token !== ticketReference[0]);
+        }
+
+        const responseParams = {
+          command,
+          userId,
+          username,
+          teamId,
+          isAdmin,
+          ticket,
+        };
+
+        // Determine appropriate response
+        if (commands.includes(command)) {
+          ticket.text = ticket.text || tokenized.splice(1).join(' ');
+          response = await responses[command](responseParams);
+        } else if (!isAdmin) {
+          responseParams.command = 'OPEN';
+          ticket.text = ticket.text || tokenized.join(' ');
+          response = await responses.OPEN(responseParams);
+        }
+
+        response = response || (await responses.ERROR({ isAdmin }));
       }
 
-      const responseParams = {
-        command,
-        userId,
-        username,
-        teamId,
-        isAdmin,
+      console.log({
         ticket,
-      };
+        isAdmin,
+        command,
+        response,
+        request: req.body,
+      });
 
-      // Determine appropriate response
-      if (commands.includes(command)) {
-        ticket.text = ticket.text || tokenized.splice(1).join(' ');
-        response = await responses[command](responseParams);
-      } else if (!isAdmin) {
-        responseParams.command = 'OPEN';
-        ticket.text = ticket.text || tokenized.join(' ');
-        response = await responses.OPEN(responseParams);
-      }
-
-      response = response || (await responses.ERROR({ isAdmin }));
-    }
-
-    console.log({
-      ticket,
-      isAdmin,
-      command,
-      response,
-      request: req.body,
-    });
-
-    sendMessage(responseURL, response);
-  });
+      sendMessage(responseURL, response);
+    })
+    .catch(console.log);
 };

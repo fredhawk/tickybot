@@ -95,6 +95,21 @@ exports.getAllOpenTicketsByUser = async (userId) => {
 };
 
 /**
+ * Get all open tickets based on userId
+ *
+ * @param {any} userId
+ * @returns {collection of tickets}
+ */
+exports.getAllSolvedTicketsByUser = async (userId) => {
+  const tickets = firebase.database().ref('tickets/');
+  const values = await tickets
+    .orderByChild('author_status')
+    .equalTo(`${userId}_solved`)
+    .once('value');
+  return values.val();
+};
+
+/**
  * Get all tickets by team
  *
  * @param {string} teamId
@@ -112,7 +127,7 @@ exports.getAllTicketsByTeam = async (teamId) => {
 /**
  * Get all open tickets based on teamId
  *
- * @param {any} teamId
+ * @param {string} teamId
  * @returns {collection of tickets}
  */
 exports.getAllOpenTicketsByTeam = async (teamId) => {
