@@ -99,7 +99,7 @@ exports.CONFIRM = async ({
       userId,
       teamId,
       username,
-      text: data,
+      text: data.charAt(0).toUpperCase() + data.slice(1), // uppercase first letter
       isAdmin,
     });
     msg = `Ticket #${ticketNumber} submitted: ${data}`;

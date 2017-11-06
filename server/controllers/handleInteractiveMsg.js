@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
 
   // FOR DEVELOPMETN: Comment fetch and set isAdmin manually
   // const isAdmin = (await getUserInfo(userId)).is_admin;
-  const isAdmin = false;
+  const isAdmin = true;
 
   const responseParams = {
     isAdmin,

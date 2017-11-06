@@ -44,12 +44,12 @@ module.exports = async (req, res) => {
     .then(async (result) => {
       // FOR DEVELOPMETN: Comment fetch and set isAdmin manually
       // const isAdmin = result[0].is_admin;
-      const isAdmin = false;
+      const isAdmin = true;
 
       /*
-    If input referenced an existing ticket within the team, assign data to ticket object.
-    Otherwise, only assign referenced number for use in ERROR message
-    */
+      If input referenced an existing ticket within the team, assign data to ticket object.
+      Otherwise, only assign referenced number for use in ERROR message
+      */
       if (result[1]) {
         [ticket] = Object.values(result[1]);
         [ticket.id] = Object.keys(result[1]);

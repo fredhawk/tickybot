@@ -42,19 +42,20 @@ exports.show = async ({ isAdmin, userId, teamId }) => {
       const format = arr =>
         arr
           .map(ticket =>
-            `#${ticket.number} - ${ticket.text}${isAdmin ? ` from ${ticket.username}` : ''}`)
+            `*#${ticket.number}* ${ticket.text}${isAdmin ? ` from <@${ticket.author}>` : ''}`)
           .join('\n');
 
       if (isAdmin) {
         return {
+          mrkdwn_in: ['text'],
           title: 'All open tickets',
           text: format(ticketsOpen),
         };
       }
       return {
+        mrkdwn_in: ['text', 'fields'],
         title: 'Your Tickets',
         title_link: 'https://www.ticketbot.commm',
-        callback_id: 'ticket-select',
         fields: [
           {
             title: 'Solved',
