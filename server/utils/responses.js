@@ -15,9 +15,9 @@ const { sendDM } = require('../handlers/responseHandlers');
  */
 
 // Show open and/or pending tickets and usage instructions
-exports.HELLO = params => ({
+exports.HELLO = async params => ({
   text: ':wave: Hello',
-  attachments: [attach.show(params), attach.usage(params.isAdmin)],
+  attachments: [await attach.show(params), attach.usage(params.isAdmin)],
 });
 
 // Show usage instructions

@@ -15,7 +15,7 @@ exports.usage = isAdmin => ({
  * @param {array} tickets - An array of prefetced tickets
  * @param{string} userId
  */
-exports.show = async ({ isAdmin, userId, teamId }) => {
+exports.show = ({ isAdmin, userId, teamId }) => {
   let promises = null;
   if (isAdmin) {
     promises = [firebaseHandler.getAllOpenTicketsByTeam(teamId)];
