@@ -17,9 +17,8 @@ module.exports = async (req, res) => {
     actions: [{ name: command, value: data }],
   } = res.locals.payload;
 
-  // FOR DEVELOPMETN: Comment fetch and set isAdmin manually
-  // const isAdmin = (await getUserInfo(userId)).is_admin;
-  const isAdmin = true;
+  const isAdmin = (await getUserInfo(userId)).is_admin;
+  // isAdmin = false // for DEVELOPMENT
 
   const responseParams = {
     isAdmin,
@@ -35,9 +34,7 @@ module.exports = async (req, res) => {
   let response = null;
   if (command === 'CANCEL' || command === 'HELP' || command === 'SHOW') {
     response = await responses[command](responseParams);
-  } else {
-    response = await responses.CONFIRM(responseParams);
-  }
+  } else response = await responses.CONFIRM(responseParams);
 
   sendMessage(responseURL, response);
 };

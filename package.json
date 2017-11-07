@@ -8,7 +8,7 @@
       "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
     "server": "nodemon -r dotenv/config ./server/server.js",
     "dev": "concurrently \"npm run test\" \"npm run server\"",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll --coverage"
   },
   "author": "Osycon, thinktwice13, miljan-fsd, Zsolti",
   "license": "MIT",
