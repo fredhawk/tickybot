@@ -6,8 +6,9 @@ const { msg } = require('../utils/helpers');
  */
 exports.usage = isAdmin => ({
   color: '#36a64f',
-  title: msg.help.att.title,
-  text: isAdmin ? msg.help.att.admin : msg.help.att.user,
+  mrkdwn_in: ['text'],
+  title: msg.help.title,
+  text: msg.help.att(isAdmin),
 });
 
 /**

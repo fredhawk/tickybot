@@ -58,12 +58,9 @@ exports.msg = {
     text: ':wave: Hello',
   },
   help: {
-    text: 'Need help? Here are some examples:',
-    att: {
-      title: 'Examples',
-      admin: examples.admin,
-      user: examples.user,
-    },
+    text: ':cold_sweat: Need help?',
+    title: 'How to use',
+    att: isAdmin => [examples.base, ...(isAdmin ? examples.admin : examples.user)].join('\n'),
   },
   show: {
     title: {
