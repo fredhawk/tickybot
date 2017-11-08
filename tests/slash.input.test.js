@@ -31,7 +31,7 @@ describe('Parse slash command input', () => {
     expect(parseInputText('hELp foo #75 bar')).toHaveProperty('command', 'HELP');
   });
 
-  test("'sHoW foo #75 bar' returns HELP", () => {
+  test("'sHoW foo #75 bar' returns SHOW", () => {
     expect(parseInputText('sHoW foo #75 bar')).toHaveProperty('command', 'SHOW');
   });
 

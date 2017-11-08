@@ -98,16 +98,15 @@ exports.CONFIRM = async ({
   isAdmin, command, userId, teamId, username, data,
 }) => {
   let text = null;
-  let ticketNumber = null;
   if (command === 'OPEN') {
-    ticketNumber = await firebaseHandler.addNewTicket({
+    const number = await firebaseHandler.addNewTicket({
       userId,
       teamId,
       username,
       text: data.charAt(0).toUpperCase() + data.slice(1), // uppercase first letter
       isAdmin,
     });
-    text = msg.confirm.submit(ticketNumber, data);
+    text = msg.confirm.submit(number, data);
   } else {
     const { number } = await firebaseHandler.updateTicket(data, userId, teamId, newStatus[command]);
     text = msg.confirm.newStatus(number, command);

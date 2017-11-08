@@ -29,7 +29,7 @@ exports.show = ({ isAdmin, userId, teamId }) => {
 
   return Promise.all(promises)
     .then((tickets) => {
-      const ticketsOpen = Object.values(tickets[0]);
+      const ticketsOpen = tickets[0] && Object.values(tickets[0]);
       const ticketsSolved = tickets[1] && Object.values(tickets[1]);
 
       // If no tickets in database
@@ -53,7 +53,7 @@ exports.show = ({ isAdmin, userId, teamId }) => {
         return {
           ...base,
           title: msg.show.title.adminTitle,
-          text: format(ticketsOpen),
+          text: ticketsOpen ? format(ticketsOpen) : msg.show.list.noOpen,
         };
       }
       return {
@@ -63,11 +63,11 @@ exports.show = ({ isAdmin, userId, teamId }) => {
         fields: [
           {
             title: msg.show.title.userSolved,
-            value: format(ticketsSolved) || 'No solved tickets.',
+            value: ticketsSolved ? format(ticketsSolved) : msg.show.list.noSolved,
           },
           {
             title: msg.show.title.userOpen,
-            value: format(ticketsOpen) || 'No open tickets. Woohoo!',
+            value: ticketsOpen ? format(ticketsOpen) : msg.show.list.noOpen,
           },
         ],
       };

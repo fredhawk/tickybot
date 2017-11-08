@@ -23,6 +23,7 @@ module.exports = async (req, res) => {
     response_url: responseURL,
   } = req.body;
 
+  // Parse incoming input into command, ticket message and ticket reference number
   const { command, message, number } = parseInputText(text);
 
   // Construct promises array for initial async calls

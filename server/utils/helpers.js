@@ -83,10 +83,18 @@ exports.msg = {
     notAllowed: 'Not allowed.',
   },
   confirm: {
-    text: (command, { number, text, author }) =>
-      (command === 'OPEN'
-        ? `Submit ticket with text: ${text}?`
-        : `${upperCaseFirst(command)} ticket *#${number}* from <@${author}>: ${text}?`),
+    text: (command, { number, text, author }) => {
+      switch (command) {
+        case 'OPEN':
+          return `Submit ticket with text: ${text}?`;
+        case 'SOLVE':
+          return `Solve ticket *#${number}* from <@${author}>: ${text}?`;
+        case 'UNSOLVE':
+          return `Reopen ticket *#${number}*: ${text}?`;
+        default:
+          return `Close ticket *#${number}*: ${text}?`;
+      }
+    },
     submit: (number, text) => `Ticket *#${number}* submitted: ${text}`,
     newStatus: (number, command) => `Ticket *#${number}* is now *${newStatus[command]}*.`,
   },
