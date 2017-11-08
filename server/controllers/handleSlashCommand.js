@@ -31,22 +31,13 @@ module.exports = async (req, res) => {
     promises.push(firebaseHandler.getTicketByNumber(number));
   }
 
-  const { isAdmin, ticket } = await Promise.all(promises).then((results) => {
-    // Return adin status constructed ticket from new or fetched data
-    let ticketEntry;
-    if (results[1]) {
-      ticketEntry = {
-        id: Object.keys(results[1])[0],
-        ...Object.values(results[1])[0],
-      };
-    } else {
-      ticketEntry = { number, text: message };
-    }
-    return {
-      ticket: ticketEntry,
-      isAdmin: results[0].is_admin,
-    };
-  });
+  // Get admin status and construct the ticket from new or fetched data
+  const { isAdmin, ticket } = await Promise.all(promises).then(results => ({
+    isAdmin: results[0].is_admin,
+    ticket: results[1]
+      ? { id: Object.keys(results[1])[0], ...Object.values(results[1])[0] }
+      : { number, text: message },
+  }));
 
   // isAdmin = false // for DEVELOPMENT
 

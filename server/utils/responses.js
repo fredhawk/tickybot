@@ -1,6 +1,7 @@
 const attach = require('./attachments');
 const firebaseHandler = require('../handlers/firebaseHandlers');
-const { status } = require('../utils/constants');
+const { newStatus } = require('../utils/constants');
+const { msg } = require('../utils/helpers');
 const { sendDM } = require('../handlers/responseHandlers');
 
 /**
@@ -16,26 +17,30 @@ const { sendDM } = require('../handlers/responseHandlers');
 
 // Show open and/or pending tickets and usage instructions
 exports.HELLO = async params => ({
-  text: ':wave: Hello',
+  text: msg.hello.text,
+  mrkdwn_in: ['text', 'attachments'],
   attachments: [await attach.show(params), attach.usage(params.isAdmin)],
 });
 
 // Show usage instructions
 exports.HELP = ({ isAdmin }) => ({
   resplace_original: false,
-  text: 'Need help? Here are some exmaples:',
+  text: msg.help.text,
+  mrkdwn_in: ['text', 'attachments'],
   attachments: [attach.usage(isAdmin)],
 });
 
 // Show open tickets to admins and open/solved to users
 exports.SHOW = async params => ({
   resplace_original: false,
+  mrkdwn_in: ['attachments'],
   attachments: [await attach.show(params)],
 });
 
 // Response to unrecognized inputs
 exports.ERROR = ({ isAdmin }) => ({
-  text: "I don't understand.. :thinking_face: \n Check some usage examples below:",
+  text: msg.error.text,
+  mrkdwn_in: ['text', 'attachments'],
   attachments: [attach.usage(isAdmin)],
 });
 
@@ -50,18 +55,18 @@ exports.CLOSE = async ({
   if (!isAdmin && ticket.author === userId && ticket.status !== 'closed') {
     return { attachments: [attach.confirm(command, ticket)] };
   } else if (ticket.status === 'closed') {
-    return { text: `Ticket #${ticket.number} already closed` };
+    return { text: msg.error.closed(ticket.number) };
   }
-  return { text: 'Not allowed.', attachments: [attach.usage(isAdmin)] };
+  return { text: msg.error.notAllowed, attachments: [attach.usage(isAdmin)] };
 };
 
 exports.SOLVE = async ({
   isAdmin, command, ticket, teamId,
 }) => {
   if (ticket.team !== teamId) {
-    return { text: `Ticket #${ticket.number} doesn't exist in this team.` };
+    return { text: msg.error.badTeam(ticket.number) };
   } else if (ticket.status !== 'open') {
-    return { text: `Ticket #${ticket.number} is ${ticket.status}.` };
+    return { text: msg.error.notAllowedStatus(ticket) };
   } else if (isAdmin) {
     return { attachments: [attach.confirm(command, ticket)] };
   }
@@ -71,13 +76,13 @@ exports.UNSOLVE = async ({
   isAdmin, command, ticket, teamId,
 }) => {
   if (ticket.team !== teamId) {
-    return { text: `Ticket #${ticket.number} belongs to another team.` };
+    return { text: msg.error.badTeam(ticket.number) };
   } else if (ticket.status !== 'solved') {
-    return { text: `Not allowed. Ticket #${ticket.number} is ${ticket.status}.` };
+    return { text: msg.error.notAllowedStatus(ticket) };
   } else if (!isAdmin) {
     return { attachments: [attach.confirm(command, ticket)] };
   }
-  return { text: 'Not allowed', attachments: [attach.usage(isAdmin)] };
+  return { text: msg.error.notAllowed, attachments: [attach.usage(isAdmin)] };
 };
 
 // CANCEL ACTION
@@ -92,7 +97,7 @@ exports.CANCEL = ({ isAdmin }) => ({
 exports.CONFIRM = async ({
   isAdmin, command, userId, teamId, username, data,
 }) => {
-  let msg = null;
+  let text = null;
   let ticketNumber = null;
   if (command === 'OPEN') {
     ticketNumber = await firebaseHandler.addNewTicket({
@@ -102,15 +107,16 @@ exports.CONFIRM = async ({
       text: data.charAt(0).toUpperCase() + data.slice(1), // uppercase first letter
       isAdmin,
     });
-    msg = `Ticket #${ticketNumber} submitted: ${data}`;
+    text = msg.confirm.submit(ticketNumber, data);
   } else {
-    const { number } = await firebaseHandler.updateTicket(data, userId, teamId, status[command]);
-    msg = `Ticket #${number} is now ${status[command]}.`;
-    if (command === 'SOLVE') sendDM(userId, ticketNumber);
+    const { number } = await firebaseHandler.updateTicket(data, userId, teamId, newStatus[command]);
+    text = msg.confirm.newStatus(number, command);
+    if (command === 'SOLVE') sendDM(userId, number);
   }
 
   return {
+    text,
     resplace_original: true,
-    text: msg,
+    mrkdwn_in: ['text'],
   };
 };

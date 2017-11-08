@@ -1,4 +1,5 @@
 const request = require('request-promise-native');
+const { msg } = require('../utils/helpers');
 
 /**
  * Requires USERS.PROFILE scope in Slack app permissions
@@ -32,7 +33,7 @@ exports.sendDM = async (userId, ticketNumber) => {
     form: {
       id: 'ticket-solved',
       as_user: false,
-      text: `Your ticket #${ticketNumber} has been solved. `,
+      text: msg.notify(ticketNumber),
       token: process.env.SLACK_BOT_OAUTH_TOKEN,
       channel: userChannelId,
     },

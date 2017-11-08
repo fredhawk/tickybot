@@ -1,13 +1,13 @@
-const { examples } = require('./constants');
 const firebaseHandler = require('../handlers/firebaseHandlers');
+const { msg } = require('../utils/helpers');
 
 /**
  * @param {bool} isAdmin - Admin status
  */
 exports.usage = isAdmin => ({
-  title: 'Usage',
-  text: isAdmin ? examples.admin : examples.user,
-  mrkdwn_in: ['text'],
+  color: '#36a64f',
+  title: msg.help.att.title,
+  text: isAdmin ? msg.help.att.admin : msg.help.att.user,
 });
 
 /**
@@ -33,9 +33,7 @@ exports.show = ({ isAdmin, userId, teamId }) => {
 
       // If no tickets in database
       if (!ticketsOpen && !ticketsSolved) {
-        return {
-          text: 'No tickets to show. Yay',
-        };
+        return { text: msg.show.list.empty };
       }
 
       // FIXME format visible ticket
@@ -45,24 +43,29 @@ exports.show = ({ isAdmin, userId, teamId }) => {
             `*#${ticket.number}* ${ticket.text}${isAdmin ? ` from <@${ticket.author}>` : ''}`)
           .join('\n');
 
+      const base = {
+        mrkdwn_in: ['text', 'fields'],
+        color: '#36a64f',
+      };
+
       if (isAdmin) {
         return {
-          mrkdwn_in: ['text'],
-          title: 'All open tickets',
+          ...base,
+          title: msg.show.title.adminTitle,
           text: format(ticketsOpen),
         };
       }
       return {
-        mrkdwn_in: ['text', 'fields'],
-        title: 'Your Tickets',
+        ...base,
+        title: msg.show.title.userTitle,
         title_link: 'https://www.ticketbot.commm',
         fields: [
           {
-            title: 'Solved',
+            title: msg.show.title.userSolved,
             value: format(ticketsSolved) || 'No solved tickets.',
           },
           {
-            title: 'Pending',
+            title: msg.show.title.userOpen,
             value: format(ticketsOpen) || 'No open tickets. Woohoo!',
           },
         ],
@@ -78,6 +81,8 @@ exports.show = ({ isAdmin, userId, teamId }) => {
  */
 exports.helpOrShowInteractive = (isAdmin, message) => ({
   text: message,
+  color: '#F4511E',
+  mrkdwn_in: ['text', 'actions'],
   callback_id: 'helpOrShow',
   attachemnt_type: 'default',
   actions: [
@@ -89,7 +94,7 @@ exports.helpOrShowInteractive = (isAdmin, message) => ({
     },
     {
       name: 'SHOW',
-      text: isAdmin ? 'View open tickets' : 'View my tickets',
+      text: msg.btn.view,
       type: 'button',
       value: 'show',
     },
@@ -102,28 +107,24 @@ exports.helpOrShowInteractive = (isAdmin, message) => ({
  * @returns {object} Constructed attachment to send with a response message
  */
 exports.confirm = (command, ticket) => {
-  const { id, text, number } = ticket;
-  // Determine response message
-  const msg =
-    command === 'OPEN'
-      ? `Submit ticket with text: ${text}?`
-      : `${command} ticket #${number}: ${text}?`;
-
+  const { id, text } = ticket;
   return {
-    text: msg,
+    color: '#ffd740',
+    text: msg.confirm.text(command, ticket),
+    mrkdwn_in: ['text', 'actions'],
     callback_id: `CONFIRM_${command}`,
     attachment_type: 'default',
     actions: [
       {
         name: 'CANCEL',
-        text: 'Cancel',
+        text: msg.btn.no,
         style: 'danger',
         type: 'button',
         value: 'cancel',
       },
       {
         name: command,
-        text: command === 'UNSOLVE' ? 'REOPEN' : command,
+        text: msg.btn.yes(command),
         type: 'button',
         value: id || text, // id is only undefined when OPENing a new ticket
       },
