@@ -8,7 +8,9 @@
       "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
     "server": "nodemon -r dotenv/config ./server/server.js",
     "dev": "concurrently \"npm run test\" \"npm run server\"",
-    "test": "jest --watchAll --coverage"
+    "test": "jest --watchAll --coverage",
+    "build": "NODE_ENV=production webpack",
+    "devserver": "NODE_ENV=development webpack-dev-server"
   },
   "author": "Osycon, thinktwice13, miljan-fsd, Zsolti",
   "license": "MIT",
@@ -37,7 +39,7 @@
     "css-loader": "^0.28.7",
     "enzyme": "^3.1.1",
     "enzyme-adapter-react-16": "^1.0.4",
-    "eslint": "^4.8.0",
+    "eslint": "^4.10.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.0.1",
     "eslint-loader": "^1.9.0",
