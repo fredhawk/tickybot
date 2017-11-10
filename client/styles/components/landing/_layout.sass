@@ -1,0 +1,29 @@
+.container
+  font-size: 1.25rem
+  margin: 0 auto
+  max-width: 1440px
+  padding: 0 1rem
+  width: 100%
+
+  &--narrow
+    max-width: 600px
+
+  &--flex
+    align-items: center
+    display: flex
+    flex-wrap: wrap
+    justify-content: space-around
+
+    & > *
+      flex: 0 1 calc(50% - 2em)
+      margin: 1rem
+      min-width: 300px
+
+.page
+  min-height: 100vh
+  padding: 1rem 0
+
+  &__title
+    flex-basis: 100%
+    font-size: 2rem
+    text-align: center
