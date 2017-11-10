@@ -63,6 +63,9 @@ const config = {
       ],
       exclude: /node_modules/,
     }, {
+      test: /\.html$/,
+      loader: 'html-loader',
+    }, {
       test: /\.(gif|jpe?g|png|svg)$/,
       loader: 'url-loader',
       options: {
