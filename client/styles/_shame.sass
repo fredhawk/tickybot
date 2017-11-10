@@ -31,3 +31,12 @@ code
 
   img
     width: 2rem
+
+.reveal-item
+  opacity: 0
+  transform: translateY(-1rem)
+  transition: opacity 1.5s cubic-bezier(0.6,-0.5, 0, 0.75), transform 1.5s cubic-bezier(0.6,-0.5, 0, 0.75)
+
+  &--visible
+    opacity: 1
+    transform: translateY(0)
