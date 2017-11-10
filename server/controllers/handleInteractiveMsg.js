@@ -18,7 +18,6 @@ module.exports = async (req, res) => {
   } = res.locals.payload;
 
   const isAdmin = (await getUserInfo(userId)).is_admin;
-  // isAdmin = false // for DEVELOPMENT
 
   const responseParams = {
     isAdmin,

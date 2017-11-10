@@ -40,8 +40,6 @@ module.exports = async (req, res) => {
       : { number, text: message },
   }));
 
-  // isAdmin = false // for DEVELOPMENT
-
   const responseParams = {
     command,
     userId,
