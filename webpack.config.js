@@ -6,11 +6,22 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const isDev = process.env.NODE_ENV !== 'production' && process.argv.indexOf('-p') === -1;
 
-const HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
-  template: './client/app.html',
-  filename: 'app.html',
-  inject: 'body',
-});
+const HtmlWebpackPluginConfigs = [
+  new HtmlWebpackPlugin({
+    template: './client/app.html',
+    chunks: ['app'],
+    filename: 'app.html',
+    hash: true,
+    inject: 'body',
+  }),
+  new HtmlWebpackPlugin({
+    template: './client/index.html',
+    chunks: ['main'],
+    filename: 'index.html',
+    hash: true,
+    inject: 'body',
+  }),
+];
 const ExtractTextPluginConfig = new ExtractTextPlugin({
   filename: 'style.css',
 });
@@ -32,13 +43,17 @@ const UglifyPluginConfig = new webpack.optimize.UglifyJsPlugin({
 });
 
 const config = {
-  entry: [
-    'react-hot-loader/patch',
-    './client/index.jsx',
-    './client/styles/style.sass',
-  ],
+  entry: {
+    app: [
+      'react-hot-loader/patch',
+      './client/index.jsx',
+    ],
+    main: [
+      './client/main.js',
+    ],
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve('dist'),
   },
   resolve: {
@@ -73,7 +88,7 @@ const config = {
       },
     }],
   },
-  plugins: [HtmlWebpackPluginConfig],
+  plugins: HtmlWebpackPluginConfigs,
 };
 
 if (isDev) {
