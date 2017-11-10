@@ -16,24 +16,21 @@ const { sendDM } = require('../handlers/responseHandlers');
  */
 
 // Show open and/or pending tickets and usage instructions
-exports.HELLO = async params => ({
-  text: msg.hello.text,
+exports.HELLO = async ({ isAdmin }) => ({
   mrkdwn_in: ['text', 'attachments'],
-  attachments: [await attach.show(params), attach.usage(params.isAdmin)],
+  text: msg.hello.text,
+  attachments: [attach.usage(isAdmin)],
 });
 
 // Show usage instructions
 exports.HELP = ({ isAdmin }) => ({
-  resplace_original: false,
-  text: msg.help.text,
   mrkdwn_in: ['text', 'attachments'],
+  text: msg.help.text,
   attachments: [attach.usage(isAdmin)],
 });
 
 // Show open tickets to admins and open/solved to users
 exports.SHOW = async params => ({
-  resplace_original: false,
-  mrkdwn_in: ['attachments'],
   attachments: [await attach.show(params)],
 });
 
@@ -46,8 +43,16 @@ exports.ERROR = ({ isAdmin }) => ({
 
 // INITIAL SLASH COMMAND RESPONSES
 
-exports.OPEN = async ({ isAdmin, command, ticket }) =>
-  !isAdmin && ticket.text && { attachments: [attach.confirm(command, ticket)] };
+exports.OPEN = async ({ isAdmin, command, ticket }) => {
+  if (isAdmin) {
+    return {
+      mrkdwn_in: ['text', 'attachments'],
+      text: msg.help.text,
+      attachments: [attach.usage(isAdmin)],
+    };
+  }
+  return ticket.text && { attachments: [attach.confirm(command, ticket)] };
+};
 
 exports.CLOSE = async ({
   isAdmin, command, userId, ticket,
@@ -88,7 +93,6 @@ exports.UNSOLVE = async ({
 // CANCEL ACTION
 
 exports.CANCEL = ({ isAdmin }) => ({
-  resplace_original: true,
   attachments: [attach.helpOrShowInteractive(isAdmin, 'Cancelled.')],
 });
 
@@ -115,7 +119,6 @@ exports.CONFIRM = async ({
 
   return {
     text,
-    resplace_original: true,
     mrkdwn_in: ['text'],
   };
 };

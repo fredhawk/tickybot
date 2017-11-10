@@ -54,13 +54,11 @@ exports.parseInputText = (inputText) => {
 };
 
 exports.msg = {
-  hello: {
-    text: ':wave: Hello',
-  },
+  hello: { text: ':wave: Hello! Need help with `/ticket`?' },
   help: {
-    text: ':cold_sweat: Need help?',
+    text: ':wave: Need help with `/ticket`?',
     title: 'How to use',
-    att: isAdmin => [examples.base, ...(isAdmin ? examples.admin : examples.user)].join('\n'),
+    att: isAdmin => [...(isAdmin ? examples.full.admin : examples.full.user)].join('\n'),
   },
   show: {
     title: {
@@ -70,23 +68,24 @@ exports.msg = {
       userSolved: 'Solved',
     },
     list: {
-      empty: 'No tickets to show. Woohoo :success-bunny:',
-      noOpen: 'No open tickets to show. Yay',
+      empty: 'No tickets to show. :success-bunny:',
+      noOpen: 'No open tickets to show. :success-bunny:',
       noSolved: 'No solved tickets to show.',
     },
   },
   error: {
-    text: ":thinking_face: I don't understand. Check some usage examples below:",
-    badTeam: number => `Ticket *#${number}* doesn't exist in this team.`,
-    notAllowedStatus: ({ number, status }) => `Not allowed. Ticket *#${number}* is *${status}*`,
-    closed: number => `Ticket *#${number}* already closed`,
-    notAllowed: 'Not allowed.',
+    text: ":thinking_face: I'm sorry, I don't understand. Check usage instructions below:",
+    badTeam: number => `:no_entry_sign: Ticket *#${number}* doesn't exist in this team.`,
+    notAllowedStatus: ({ number, author, status }) =>
+      `:no_entry_sign: Not allowed. Ticket *#${number}* from <@${author}> is *${status}*.`,
+    closed: number => `:no_entry_sign: Ticket *#${number}* already closed`,
+    notAllowed: ':no_entry_sign: Not allowed.',
   },
   confirm: {
     text: (command, { number, text, author }) => {
       switch (command) {
         case 'OPEN':
-          return `Submit ticket with text: ${text}?`;
+          return `Open new ticket with text: ${text}?`;
         case 'SOLVE':
           return `Solve ticket *#${number}* from <@${author}>: ${text}?`;
         case 'UNSOLVE':
@@ -95,8 +94,9 @@ exports.msg = {
           return `Close ticket *#${number}*: ${text}?`;
       }
     },
-    submit: (number, text) => `Ticket *#${number}* submitted: ${text}`,
-    newStatus: (number, command) => `Ticket *#${number}* is now *${newStatus[command]}*.`,
+    submit: (number, text) => `:white_check_mark: Ticket *#${number}* opened: ${text}`,
+    newStatus: (number, command) =>
+      `:white_check_mark: Ticket *#${number}* is now *${newStatus[command]}*.`,
   },
   btn: {
     no: 'Cancel',

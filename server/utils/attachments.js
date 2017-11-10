@@ -1,5 +1,6 @@
 const firebaseHandler = require('../handlers/firebaseHandlers');
 const { msg } = require('../utils/helpers');
+const { examples } = require('../utils/constants');
 
 /**
  * @param {bool} isAdmin - Admin status
@@ -45,21 +46,22 @@ exports.show = ({ isAdmin, userId, teamId }) => {
           .join('\n');
 
       const base = {
-        mrkdwn_in: ['text', 'fields'],
+        mrkdwn_in: ['pretext', 'text', 'fields'],
         color: '#36a64f',
       };
 
       if (isAdmin) {
         return {
           ...base,
+          pretext: examples.short.admin,
           title: msg.show.title.adminTitle,
           text: ticketsOpen ? format(ticketsOpen) : msg.show.list.noOpen,
         };
       }
       return {
         ...base,
+        pretext: examples.short.user,
         title: msg.show.title.userTitle,
-        title_link: 'https://www.ticketbot.commm',
         fields: [
           {
             title: msg.show.title.userSolved,
