@@ -4,8 +4,9 @@
   "description": "Voyage project",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
-    "server": "nodemon -r dotenv/config ./server/server.js",
+    "servertest":
+      "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
+    "start": "nodemon -r dotenv/config ./server/server.js",
     "dev": "concurrently \"npm run test\" \"npm run server\"",
     "test": "jest --watchAll --coverage",
     "build": "NODE_ENV=production webpack",
