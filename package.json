@@ -1,16 +1,29 @@
 {
   "name": "voysec",
   "version": "0.0.1",
-  "description": "Voyage project",
+  "description": "Ticket bot",
   "main": "index.js",
+  "engines": {
+    "node": "8.4.0",
+    "npm": "5.4.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chingu-coders/Voyage2-Bears-19.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chingu-coders/Voyage2-Bears-19/issues"
+  },
+  "homepage": "https://tickybott.herokuapp.com/",
   "scripts": {
     "servertest":
       "concurrently \"npm run test\" \"node -r dotenv/config ./server/server.js\"",
-    "start": "nodemon -r dotenv/config ./server/server.js",
+    "start": "node -r dotenv/config ./server/server.js",
     "dev": "concurrently \"npm run test\" \"npm run server\"",
     "test": "jest --watchAll --coverage",
     "build": "NODE_ENV=production webpack",
-    "devserver": "NODE_ENV=development webpack-dev-server"
+    "devserver": "NODE_ENV=development webpack-dev-server",
+    "heroku-postbuild": "npm install && npm run build"
   },
   "author": "Osycon, thinktwice13, miljan-fsd, Zsolti",
   "license": "MIT",
