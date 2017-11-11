@@ -4,7 +4,8 @@ const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const isDev = process.env.NODE_ENV !== 'production' && process.argv.indexOf('-p') === -1;
+const isDev =
+  process.env.NODE_ENV !== 'production' && process.argv.indexOf('-p') === -1;
 
 const HtmlWebpackPluginConfigs = [
   new HtmlWebpackPlugin({
@@ -44,13 +45,8 @@ const UglifyPluginConfig = new webpack.optimize.UglifyJsPlugin({
 
 const config = {
   entry: {
-    app: [
-      'react-hot-loader/patch',
-      './client/index.jsx',
-    ],
-    main: [
-      './client/main.js',
-    ],
+    app: ['react-hot-loader/patch', './client/index.jsx'],
+    main: ['./client/main.js'],
   },
   output: {
     filename: '[name].js',
@@ -70,23 +66,24 @@ const config = {
     ],
   },
   module: {
-    rules: [{
-      test: /\.jsx?$/,
-      loaders: [
-        'babel-loader',
-        'eslint-loader',
-      ],
-      exclude: /node_modules/,
-    }, {
-      test: /\.html$/,
-      loader: 'html-loader',
-    }, {
-      test: /\.(gif|jpe?g|png|svg)$/,
-      loader: 'url-loader',
-      options: {
-        limit: 1000,
+    rules: [
+      {
+        test: /\.jsx?$/,
+        loaders: ['babel-loader', 'eslint-loader'],
+        exclude: /node_modules/,
       },
-    }],
+      {
+        test: /\.html$/,
+        loader: 'html-loader',
+      },
+      {
+        test: /\.(gif|jpe?g|png|svg)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 1000,
+        },
+      },
+    ],
   },
   plugins: HtmlWebpackPluginConfigs,
 };
@@ -94,30 +91,35 @@ const config = {
 if (isDev) {
   config.plugins.push(
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.NamedModulesPlugin(),
+    new webpack.NamedModulesPlugin()
   );
 
   config.module.rules.push({
     test: /\.s(a|c)ss$/,
-    use: [{
-      loader: 'style-loader',
-      options: { sourceMap: true },
-    }, {
-      loader: 'css-loader',
-      options: { sourceMap: true },
-    }, {
-      loader: 'postcss-loader',
-      options: {
-        plugins: () => [autoprefixer],
-        sourceMap: true,
+    use: [
+      {
+        loader: 'style-loader',
+        options: { sourceMap: true },
       },
-    }, {
-      loader: 'sass-loader',
-      options: {
-        outputStyle: 'expanded',
-        sourceMap: true,
+      {
+        loader: 'css-loader',
+        options: { sourceMap: true },
       },
-    }],
+      {
+        loader: 'postcss-loader',
+        options: {
+          plugins: () => [autoprefixer],
+          sourceMap: true,
+        },
+      },
+      {
+        loader: 'sass-loader',
+        options: {
+          outputStyle: 'expanded',
+          sourceMap: true,
+        },
+      },
+    ],
   });
 
   config.devServer = {
@@ -126,7 +128,7 @@ if (isDev) {
     historyApiFallback: true,
     hot: true,
     overlay: true,
-    port: 3030,
+    port: 3000,
     stats: {
       cached: false,
       chunks: false,
@@ -158,24 +160,28 @@ if (isDev) {
     ExtractTextPluginConfig,
     UglifyPluginConfig,
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.AggressiveMergingPlugin(),
+    new webpack.optimize.AggressiveMergingPlugin()
   );
 
   config.module.rules.push({
     test: /\.s(a|c)ss$/,
     use: ExtractTextPlugin.extract({
       fallback: 'style-loader',
-      use: [{
-        loader: 'css-loader',
-        options: { minimize: true },
-      }, {
-        loader: 'postcss-loader',
-        options: {
-          plugins: () => [autoprefixer],
+      use: [
+        {
+          loader: 'css-loader',
+          options: { minimize: true },
         },
-      }, {
-        loader: 'sass-loader',
-      }],
+        {
+          loader: 'postcss-loader',
+          options: {
+            plugins: () => [autoprefixer],
+          },
+        },
+        {
+          loader: 'sass-loader',
+        },
+      ],
     }),
   });
 }
