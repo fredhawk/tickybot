@@ -22,6 +22,13 @@ const HtmlWebpackPluginConfigs = [
     hash: true,
     inject: 'body',
   }),
+  new HtmlWebpackPlugin({
+    template: './client/success.html',
+    chunks: ['main'],
+    filename: 'success.html',
+    hash: true,
+    inject: 'body',
+  }),
 ];
 const ExtractTextPluginConfig = new ExtractTextPlugin({
   filename: 'style.css',
