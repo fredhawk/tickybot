@@ -1,0 +1,43 @@
+.btn-cta
+  align-items: center
+  background-color: #fff
+  border: 0
+  border-radius: 4px
+  cursor: pointer
+  display: flex
+  font-size: 1.75rem
+  line-height: 1
+  justify-content: center
+  margin: 0 auto
+  max-width: 300px
+  padding: 1rem
+  transition: background-color .3s ease-in-out, transform .3s ease-in-out
+  width: 100%
+
+  img
+    margin: 0 1rem 0 0
+    padding: 0
+    transition: transform .3s ease-in-out
+    width: 2.5rem
+
+  &:hover,
+  &:focus
+    background-color: rgba(white, .9)
+    transform: scale(.98)
+
+    img
+      transform: scale(1.5) rotate(18deg)
+
+  &:focus
+    outline: thin dotted
+
+  &--dark
+    background-color: $blue
+    color: rgba(white, .9)
+
+    &:hover,
+    &:focus
+      background-color: rgba(black, .7)
+
+  &--extra-margin
+    margin: 5rem auto
