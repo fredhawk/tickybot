@@ -14,6 +14,9 @@
   transition: background-color .3s ease-in-out, transform .3s ease-in-out
   width: 100%
 
+  &__link
+    text-decoration: none;
+
   img
     margin: 0 1rem 0 0
     padding: 0
@@ -30,10 +33,13 @@
 
   &:focus
     outline: thin dotted
-
+  &--light
+    span
+      color: $text-color;
   &--dark
     background-color: $blue
-    color: rgba(white, .9)
+    span
+      color: rgba(white, .9)
 
     &:hover,
     &:focus
